@@ -4,9 +4,9 @@
 title: Shihusi
 description: >- # this means to ignore newlines until "baseurl:"
   Bay is a minimal Jekyll Theme.
-baseurl: "/bay" # the subpath of the site
-url: "https://shihusi.github.io" # the base hostname & protocol for the site
-og_image: ./assets/img/profile-pic.jpg
+baseurl: "" # the subpath of the site
+url: "" # the base hostname & protocol for the site
+og_image: /assets/img/profile-pic.jpg
 google_analytics: "UA-121636368-3"
 
 theta: bay_jekyll_theme
