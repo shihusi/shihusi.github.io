@@ -10,6 +10,7 @@ og_image: ./assets/img/profile-pic.jpg
 google_analytics: "UA-121636368-3"
 
 theta: bay_jekyll_theme
+remote_theme: eliottvincent/bay
 
 header:
   pages:
