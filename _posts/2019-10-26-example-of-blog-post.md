@@ -1,12 +1,12 @@
 ---
 layout: post
-title:  "Post example"
-date:   2019-10-26 10:00:40
+title:  "Beijing"
+date:   2023-06-02 10:00:40
 blurb: "A look at an example post using Bay Jekyll theme."
 og_image: /assets/img/content/post-example/Banner.jpg
 ---
 
-<img src="{{ "/assets/img/content/post-example/Banner.jpg" | absolute_url }}" alt="bay" class="post-pic"/>
+<!-- <img src="{{ "/assets/img/content/post-example/Banner.jpg" | absolute_url }}" alt="bay" class="post-pic"/>
 <br />
 <br />
 
@@ -52,4 +52,4 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 
 ##### FOOTNOTES
 
-[^1]: This is a note!
+[^1]: This is a note! -->
