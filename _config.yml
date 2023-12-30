@@ -9,7 +9,7 @@ url: "https://shihusi.github.io" # the base hostname & protocol for the site
 og_image: ./assets/img/profile-pic.jpg
 google_analytics: "UA-121636368-3"
 
-# theme: 
+theta: bay_jekyll_theme
 
 header:
   pages:
