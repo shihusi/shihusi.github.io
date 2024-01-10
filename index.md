@@ -7,7 +7,11 @@ profile_picture:
 ---
 
 <p>
-  Welcome! This is oyyt's homepage. 
+  Welcome! This is oyyt's homepage. My main research interest is in embodied AI, RL, robotics and other related areas, and aslo enjoy communicating with people in different fields.
+</p>
+
+<p>
+    If you have any interesting topic, please feel free to contact me and discuss together, appeciate for your letter.
 </p>
 
 <!-- <p>

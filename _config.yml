@@ -3,14 +3,14 @@
 
 title: Shihusi
 description: >- # this means to ignore newlines until "baseurl:"
-  Bay is a minimal Jekyll Theme.
+  Welcome
 baseurl: "" # the subpath of the site
 url: "" # the base hostname & protocol for the site
 og_image: /assets/img/profile-pic.jpg
 google_analytics: "UA-121636368-3"
 
-theta: bay_jekyll_theme
-remote_theme: eliottvincent/bay
+# theta: bay_jekyll_theme
+# remote_theme: eliottvincent/bay
 
 header:
   pages:
@@ -18,12 +18,13 @@ header:
       slug: /
     - name: Work
     - name: Blog
+    - name: About
 
 footer:
   show_powered_by: false
   contact:
     - name: Email
-      value: oyyttyyo@outlook.com
+      value: oyyttyyo[AT]outlook.com
       link: mailto:oyyttyyo@outlook.com
   #   - name: WeChat
   #     value: YourWeChatUsername

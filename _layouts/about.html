@@ -7,18 +7,10 @@
 
     <div class="page-content">
       <div class="wrapper">
-        <div class="home">
-          <img
-            src="{{ page.profile_picture.src | absolute_url }}"
-            alt="{{ page.profile_picture.alt }}"
-            class="profile-pic"
-          />
-
+        <div class="about">
+          <h1 class="page-heading">{{ page.title }}</h1>
           {{ content }}
-          <br />
-          <br />
-        </div>
-        <!-- <table
+          <table
               style="
                 width: 100%;
                 border: 00px;
@@ -36,53 +28,74 @@
             
             <td style="padding: 10px; width: 90%; vertical-align: right; text-align:right">
               <br />
+              <!-- <hr /> -->
             </td>
           </tr>
         </tbody>
           <tbody>
             <tr>
               
-              <td style="padding: 10px; width: 90%; vertical-align: right; text-align:right">
+              <td style="padding: 10px; width: 60%; vertical-align: right; text-align:right">
                 <projecttitle
                   >Tsinghua University</projecttitle
                 >
                 <br />
                 <p>
                   <pintro>
-                    Computer Science, IIIS
+                    Computer Science, Institute for Interdisciplinary Information Sciences
                   </pintro>
                 </p>
+                <!-- <hr /> -->
               </td>
-              <td style="padding: 10px; width: 40%; vertical-align: right; text-align:right">
-                <img src="/assets/img/thu.jpg" width="70" />
+              <td style="padding: 10px; width: 80%; vertical-align: right; text-align:right">
+                <img src="/assets/img/thu.jpg" width="200" />
               </td>
             </tr>
           </tbody>
           <tbody>
             <tr>
               
-              <td style="padding: 10px; width: 75%; vertical-align: middle; text-align:right">
+              <td style="padding: 10px; width: 60%; vertical-align: middle; text-align:right">
                 <projecttitle
                   >Xiamen University</projecttitle
                 >
                 <br />
                 <p>
                   <pintro>
-                    Artificial Intelligence, school of Informatics
+                    Artificial Intelligence, School of Informatics
                   </pintro>
                 </p>
+                <!-- <hr /> -->
               </td>
-              <td style="padding: 10px; width: 90%; vertical-align: right; text-align:right">
-                <img src="/assets/img/xmu.jpg" width="66" />
+              <td style="padding: 10px; width: 80%; vertical-align: right; text-align:right">
+                <img src="/assets/img/xmu.jpg" width="50" />
               </td>
             </tr>
           </tbody>
-        </table> -->
+          <tbody>
+            <tr>
+              
+              <td style="padding: 10px; width: 60%; vertical-align: middle; text-align:right">
+                <!-- <projecttitle
+                  ></projecttitle
+                > -->
+                <br />
+                
+                <!-- <hr /> -->
+              </td>
+              <td style="padding: 10px; width: 80%; vertical-align: right; text-align:right">
+                <p>
+                  <pintro>
+                    渊澄
+                    取映
+                  </pintro>
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      
     </div>
-
-    
 
     {% include footer.html %}
 
