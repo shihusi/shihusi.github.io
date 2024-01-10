@@ -4,6 +4,6 @@ layout: blog
 slug: /blog
 ---
 
-日月愈迈 若弗云来
+日月逾迈 若弗云来
 <br />
 <br />
