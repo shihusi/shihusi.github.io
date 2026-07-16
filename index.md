@@ -7,7 +7,7 @@ profile_picture:
 ---
 
 <p>
-  Welcome! This is 欧阳宇涛 Ouyang Yutao's homepage. My main research interest is in embodied AI, RL, robotics and other related areas, and aslo enjoy communicating with people in different fields.
+  Welcome! This is 欧阳宇涛 Ouyang Yutao's homepage. I am a Ph.D. student at the Institute for Interdisciplinary Information Sciences (IIIS), Tsinghua University, and a research intern at ByteDance Seed. My main research interest is in embodied AI, RL, robotics and other related areas, and aslo enjoy communicating with people in different fields.
 </p>
 
 <p>
