@@ -14,6 +14,12 @@ profile_picture:
     If you have any interesting topic, please feel free to contact me and discuss together, appeciate for your letter.
 </p>
 
+<p class="profile-links">
+  <a href="mailto:oyyttyyo@outlook.com">Email</a>
+  <span aria-hidden="true">&middot;</span>
+  <a href="https://scholar.google.com/citations?user=e8LSJ_4AAAAJ&amp;hl=zh-CN&amp;oi=ao" target="_blank" rel="noopener noreferrer">Google Scholar</a>
+</p>
+
 <!-- <p>
   You can find the source code and the instructions on <a href="https://github.com/eliottvincent/bay">GitHub</a>.
 </p> -->
