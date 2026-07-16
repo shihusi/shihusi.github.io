@@ -67,14 +67,20 @@
     .menu-icon {
       display: block;
       float: right;
+      border: 0;
       width: 36px;
       height: 26px;
       line-height: 0;
       padding-top: 4px;
       text-align: center;
+      cursor: pointer;
 
       background: #ffffff url($base-url + '/assets/img/menu.png') 6px 4px no-repeat;
       background-size: 26px 26px;
+    }
+
+    .menu-icon[aria-expanded="true"] + .menu {
+      display: block;
     }
 
     .menu {

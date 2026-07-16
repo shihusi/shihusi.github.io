@@ -9,4 +9,4 @@ layout: about
 <br />
 <br />
 
-My name is oyyt, an undergraduate student from Xiamen University, ready to go to IIIS, Tsinghua to pursue my further research.
+My name is Yutao Ouyang, a phd student from IIIS Tsinghua University.

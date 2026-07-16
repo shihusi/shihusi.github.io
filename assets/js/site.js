@@ -1,37 +1,39 @@
-/**
- * Menu
- */
- $("a.menu-icon").on("click", function(event) {
-   var w = $(".menu");
+(function () {
+  var menuButton = document.querySelector(".menu-icon");
+  var menu = document.querySelector(".menu");
 
-   w.css({
-     display: w.css("display") === "none"
-      ? "block"
-      : "none"
-   });
- });
+  if (menuButton && menu) {
+    menuButton.addEventListener("click", function () {
+      var expanded = menuButton.getAttribute("aria-expanded") === "true";
+      menuButton.setAttribute("aria-expanded", String(!expanded));
+    });
 
-/**
- * Wechat widget
- */
-function moveWidget(event) {
-  var w = $("#wechat-widget");
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && menuButton.getAttribute("aria-expanded") === "true") {
+        menuButton.setAttribute("aria-expanded", "false");
+        menuButton.focus();
+      }
+    });
+  }
 
-  w.css({
-    left: event.pageX - 25,
-    top: event.pageY - w.height() - 60
+  var wechatLink = document.getElementById("wechat-link");
+  var wechatWidget = document.getElementById("wechat-widget");
+
+  if (!wechatLink || !wechatWidget) {
+    return;
+  }
+
+  function moveWidget(event) {
+    wechatWidget.style.left = (event.pageX - 25) + "px";
+    wechatWidget.style.top = (event.pageY - wechatWidget.offsetHeight - 60) + "px";
+  }
+
+  wechatLink.addEventListener("mouseenter", function (event) {
+    wechatWidget.style.display = "block";
+    moveWidget(event);
   });
-}
-
-$("a#wechat-link").on("mouseenter", function(event) {
-  $("#wechat-widget").css({ display: "block" });
-  moveWidget(event);
-});
-
-$("a#wechat-link").on("mousemove", function(event) {
-  moveWidget(event);
-});
-
-$("a#wechat-link").on("mouseleave", function(event) {
-  $("#wechat-widget").css({ display: "none" });
-});
+  wechatLink.addEventListener("mousemove", moveWidget);
+  wechatLink.addEventListener("mouseleave", function () {
+    wechatWidget.style.display = "none";
+  });
+}());

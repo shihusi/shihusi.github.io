@@ -4,10 +4,10 @@
       <img src="{{ "/assets/img/sit.png" | absolute_url }}" alt="{{ site.title }}" />
     </a>
 
-    <nav class="site-nav">
-      <a href="#" class="menu-icon"></a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <button class="menu-icon" type="button" aria-label="Toggle navigation" aria-controls="site-menu" aria-expanded="false"></button>
 
-      <div class="menu">
+      <div class="menu" id="site-menu">
         {% for page in site.header.pages %}
           {% if page.slug and page.slug != "" and page.slug != nil %}
             {% assign page_link = page.slug %}
