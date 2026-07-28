@@ -4,9 +4,9 @@
 
 .about-entry {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 150px;
+  grid-template-columns: minmax(0, 1fr) 120px;
   align-items: center;
-  column-gap: 2rem;
+  column-gap: 1rem;
   padding: 0.85rem 0;
 }
 
@@ -29,8 +29,8 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  width: 150px;
-  height: 84px;
+  width: 120px;
+  height: 64px;
 }
 
 .about-entry-logo img {
@@ -53,13 +53,13 @@
 
 @include media-query($on-mobile) {
   .about-entry {
-    grid-template-columns: minmax(0, 1fr) 105px;
-    column-gap: 1rem;
+    grid-template-columns: minmax(0, 1fr) 80px;
+    column-gap: 0.5rem;
   }
 
   .about-entry-logo {
-    width: 105px;
-    height: 66px;
+    width: 80px;
+    height: 50px;
   }
 
   .about-entry-logo img {
