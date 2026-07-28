@@ -12,91 +12,65 @@
             <h1 class="page-heading">{{ page.title }}</h1>
           {% endif %}
           {{ content }}
-          <table
-              style="
-                width: 100%;
-                border: 00px;
-                border-spacing: 0px;
-                /* cellspacing: 10; */
-                /* border-collapse: separate; */
-                margin-right: auto;
-                margin-left: auto;
-              "
-              align: right;
-            >
-        <div id="Projects"></div>
-        <tbody>
-          <tr>
-            
-            <td style="padding: 10px; width: 90%; vertical-align: right; text-align:right">
-              <br />
-              <!-- <hr /> -->
-            </td>
-          </tr>
-        </tbody>
-          <tbody>
-            <tr>
-              
-              <td style="padding: 10px; width: 60%; vertical-align: right; text-align:right">
-                <projecttitle
-                  >Tsinghua University</projecttitle
-                >
-                <br />
-                <p>
-                  <pintro>
-                    Computer Science, Institute for Interdisciplinary Information Sciences
-                  </pintro>
-                </p>
-                <!-- <hr /> -->
-              </td>
-              <td style="padding: 10px; width: 80%; vertical-align: right; text-align:right">
-                <img src="/assets/img/thu.jpg" width="200" />
-              </td>
-            </tr>
-          </tbody>
-          <tbody>
-            <tr>
-              
-              <td style="padding: 10px; width: 60%; vertical-align: middle; text-align:right">
-                <projecttitle
-                  >Xiamen University</projecttitle
-                >
-                <br />
-                <p>
-                  <pintro>
-                    Artificial Intelligence, School of Informatics
-                  </pintro>
-                </p>
-                <!-- <hr /> -->
-              </td>
-              <td style="padding: 10px; width: 80%; vertical-align: right; text-align:right">
-                <img src="/assets/img/xmu.jpg" width="50" />
-              </td>
-            </tr>
-          </tbody>
-          <tbody>
-            <tr>
-              
-              <td style="padding: 10px; width: 60%; vertical-align: middle; text-align:right">
-                <!-- <projecttitle
-                  ></projecttitle
-                > -->
-                <br />
-                
-                <!-- <hr /> -->
-              </td>
-              <td style="padding: 10px; width: 80%; vertical-align: right; text-align:right">
-                <p>
-                  <pintro>
-                    渊澄
-                    取映
-                  </pintro>
-                </p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+
+          <div class="about-entries">
+            <section class="about-entry-group" aria-label="Internship experience">
+              <article class="about-entry">
+                <div class="about-entry-copy">
+                  <h2 class="about-entry-title">ByteDance Seed</h2>
+                  <p class="about-entry-subtitle">Research Intern</p>
+                </div>
+                <div class="about-entry-logo">
+                  <img src="{{ "/assets/img/bytedance_seed.png" | relative_url }}" alt="ByteDance Seed logo" />
+                </div>
+              </article>
+
+              <article class="about-entry">
+                <div class="about-entry-copy">
+                  <h2 class="about-entry-title">Covariant</h2>
+                  <p class="about-entry-subtitle">Intern</p>
+                </div>
+                <div class="about-entry-logo">
+                  <img src="{{ "/assets/img/covariant.png" | relative_url }}" alt="Covariant logo" />
+                </div>
+              </article>
+
+              <article class="about-entry">
+                <div class="about-entry-copy">
+                  <h2 class="about-entry-title">SQZ</h2>
+                  <p class="about-entry-subtitle">Intern</p>
+                </div>
+                <div class="about-entry-logo">
+                  <img src="{{ "/assets/img/sqz.jpeg" | relative_url }}" alt="SQZ logo" />
+                </div>
+              </article>
+            </section>
+
+            <section class="about-entry-group about-education" aria-label="Education">
+              <article class="about-entry">
+                <div class="about-entry-copy">
+                  <h2 class="about-entry-title">Tsinghua University</h2>
+                  <p class="about-entry-subtitle">Computer Science, Institute for Interdisciplinary Information Sciences</p>
+                </div>
+                <div class="about-entry-logo">
+                  <img src="{{ "/assets/img/thu.jpg" | relative_url }}" alt="Tsinghua University logo" />
+                </div>
+              </article>
+
+              <article class="about-entry">
+                <div class="about-entry-copy">
+                  <h2 class="about-entry-title">Xiamen University</h2>
+                  <p class="about-entry-subtitle">Artificial Intelligence, School of Informatics</p>
+                </div>
+                <div class="about-entry-logo">
+                  <img src="{{ "/assets/img/xmu.jpg" | relative_url }}" alt="Xiamen University logo" />
+                </div>
+              </article>
+            </section>
+
+            <p class="about-signature">渊澄<br />取映</p>
+          </div>
+        </div>
     </div>
 
     {% include footer.html %}
