@@ -199,6 +199,7 @@
 [data-theme="night"] .site-content a { text-decoration: underline; text-underline-offset: .18em; }
 .site-content .selected-work.assembling a { text-decoration: none; }
 .site-content .about > p:first-of-type a { text-decoration: none; }
+.site-content .about a[data-academy-trigger] { color: inherit; text-decoration: none; }
 
 
 [data-theme="night"] :is(.blog-post-date, .about-entry-subtitle, .about-signature, .post-subtitle, blockquote) {
