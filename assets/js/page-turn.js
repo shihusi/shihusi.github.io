@@ -33,6 +33,7 @@
       leaving = true;
       root.toggleAttribute("data-turn-back", direction < 0);
       const href = direction < 0 ? new URL(next.dataset.prev, location.href).href : next.href;
+      document.dispatchEvent(new CustomEvent("page-turn-start", {detail: {href}}));
       root.dataset.pageTurn = "out";
       navigationTimer = setTimeout(() => {
         try {
@@ -88,7 +89,12 @@
       if (!event.defaultPrevented && eligible && Math.abs(dy) >= 30 && Math.abs(dy) > dx * 1.2 && atEdge(direction)) turn(direction);
     }, { passive: true });
 
-    window.addEventListener("pagehide", () => clearTimeout(navigationTimer));
+    window.addEventListener("pagehide", () => {
+      clearTimeout(navigationTimer);
+      if (!document.querySelector(".almanac-cloud")) {
+        try { sessionStorage.removeItem("shihusi.sunPhase"); } catch {}
+      }
+    });
     window.addEventListener("pageshow", event => {
       if (!event.persisted) return;
       delete root.dataset.pageTurn;

@@ -20,7 +20,39 @@
       speed: .13 + .045*(1-y*y), grain: .5 + .5*random(), drift: .25 + random()});
   }
   let width, height, clearings = [], frame = 0, last = 0, time = 0;
-  let exitStart = 0;
+  const pagePath = url => new URL(url, location.href).pathname.replace(/\.html$|\/$/g, "");
+  const sunPages = new Set(canvas.dataset.sunPages.split(/\s+/).map(pagePath));
+  const phaseKey = "shihusi.sunPhase";
+  let skipEntry = false, exitStart = 0;
+
+  function resumeSun(historyTraversal) {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(phaseKey));
+      sessionStorage.removeItem(phaseKey);
+      if (!saved || Date.now() - saved.stamp > 15000 || saved.path === pagePath(location.href)) return;
+      const ref = document.referrer && new URL(document.referrer);
+      if (!historyTraversal && !(ref && ref.origin === location.origin && pagePath(ref.href) === saved.path)) return;
+      if (sunPages.has(saved.path) && Number.isFinite(saved.time)) {
+        time = saved.time;
+        skipEntry = true;
+      }
+    } catch {}
+  }
+  resumeSun(performance.getEntriesByType("navigation")[0]?.type === "back_forward");
+  window.addEventListener("pagehide", () => {
+    try {
+      sessionStorage.setItem(phaseKey, JSON.stringify({path: pagePath(location.href), time, stamp: Date.now()}));
+    } catch {}
+  });
+  window.addEventListener("pageshow", event => {
+    if (!event.persisted) return;
+    exitStart = 0;
+    resumeSun(true);
+    draw();
+  });
+  document.addEventListener("page-turn-start", event => {
+    exitStart = sunPages.has(pagePath(event.detail.href)) ? 0 : performance.now();
+  });
   let hoverScale = 1, desiredScale = 1;
   function overSun(event) {
     if (event.target.closest("a, button, input, select, textarea, [contenteditable]")) return false;
@@ -71,7 +103,7 @@
     const radius = width * radiusFraction * hoverScale;
     const night = document.documentElement.dataset.theme === "night";
     const animated = !reduced.matches && document.body.hasAttribute("data-playing");
-    const entry = animated ? Math.min(1, time / 950) : 1;
+    const entry = animated && !skipEntry ? Math.min(1, time / 950) : 1;
     const exit = animated && exitStart ? Math.min(1, (performance.now()-exitStart)/200) : 0;
     const travel = (1-entry)**2 - exit*exit;
     const direction = document.documentElement.hasAttribute("data-turn-back") ? -1 : 1;
@@ -116,8 +148,5 @@
   reduced.addEventListener("change", playback);
   document.addEventListener("visibilitychange", playback);
   new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
-  new MutationObserver(() => {
-    exitStart = document.documentElement.dataset.pageTurn === "out" ? performance.now() : 0;
-  }).observe(document.documentElement,{attributes:true,attributeFilter:["data-page-turn"]});
   measure(); playback();
 })();
