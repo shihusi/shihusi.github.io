@@ -1,80 +1,68 @@
-<!DOCTYPE html>
-<html lang="{{ site.lang | default: 'en' }}">
-  {% include head.html %}
+---
+layout: default
+---
+<div class="about">
+  {% if page.title %}
+    <h1 class="page-heading">{{ page.title }}</h1>
+  {% endif %}
+  {{ content }}
 
-  <body>
-    {% include header.html %}
-
-    <div class="page-content">
-      <div class="wrapper">
-        <div class="about">
-          {% if page.title %}
-            <h1 class="page-heading">{{ page.title }}</h1>
-          {% endif %}
-          {{ content }}
-
-          <div class="about-entries">
-            <section class="about-entry-group" aria-label="Internship experience">
-              <article class="about-entry">
-                <div class="about-entry-copy">
-                  <h2 class="about-entry-title">ByteDance Seed</h2>
-                  <p class="about-entry-subtitle">Research Intern</p>
-                </div>
-                <div class="about-entry-logo">
-                  <img src="{{ "/assets/img/bytedance_seed.png" | relative_url }}" alt="ByteDance Seed logo" />
-                </div>
-              </article>
-
-              <article class="about-entry">
-                <div class="about-entry-copy">
-                  <h2 class="about-entry-title">Covariant</h2>
-                  <p class="about-entry-subtitle">Intern</p>
-                </div>
-                <div class="about-entry-logo">
-                  <img src="{{ "/assets/img/covariant.png" | relative_url }}" alt="Covariant logo" />
-                </div>
-              </article>
-
-              <article class="about-entry">
-                <div class="about-entry-copy">
-                  <h2 class="about-entry-title">SQZ</h2>
-                  <p class="about-entry-subtitle">Intern</p>
-                </div>
-                <div class="about-entry-logo">
-                  <img src="{{ "/assets/img/sqz.jpeg" | relative_url }}" alt="SQZ logo" />
-                </div>
-              </article>
-            </section>
-
-            <section class="about-entry-group about-education" aria-label="Education">
-              <article class="about-entry">
-                <div class="about-entry-copy">
-                  <h2 class="about-entry-title">Tsinghua University</h2>
-                  <p class="about-entry-subtitle">Computer Science, Institute for Interdisciplinary Information Sciences</p>
-                </div>
-                <div class="about-entry-logo">
-                  <img src="{{ "/assets/img/thu.jpg" | relative_url }}" alt="Tsinghua University logo" />
-                </div>
-              </article>
-
-              <article class="about-entry">
-                <div class="about-entry-copy">
-                  <h2 class="about-entry-title">Xiamen University</h2>
-                  <p class="about-entry-subtitle">Artificial Intelligence, School of Informatics</p>
-                </div>
-                <div class="about-entry-logo">
-                  <img src="{{ "/assets/img/xmu.jpg" | relative_url }}" alt="Xiamen University logo" />
-                </div>
-              </article>
-            </section>
-
-            <p class="about-signature">渊澄<br />取映</p>
-          </div>
+  <div class="about-entries">
+    <section class="about-entry-group" aria-label="Internship experience">
+      <article class="about-entry" data-academy-trigger="seed" tabindex="0">
+        <div class="about-entry-copy">
+          <h2 class="about-entry-title">ByteDance Seed</h2>
+          <p class="about-entry-subtitle">Research Intern</p>
         </div>
-    </div>
+        <div class="about-entry-logo">
+          <img class="about-seed-logo" src="{{ "/assets/img/about/bytedance_seed.png" | relative_url }}" alt="ByteDance Seed logo" />
+        </div>
+      </article>
 
-    {% include footer.html %}
+      <article class="about-entry" data-academy-trigger="covariant" tabindex="0">
+        <div class="about-entry-copy">
+          <h2 class="about-entry-title">Covariant</h2>
+          <p class="about-entry-subtitle">Intern</p>
+        </div>
+        <div class="about-entry-logo">
+          <img src="{{ "/assets/img/about/covariant.png" | relative_url }}" alt="Covariant logo" />
+        </div>
+      </article>
 
-    {% include foot.html %}
-  </body>
-</html>
+      <article class="about-entry" data-academy-trigger="sqz" tabindex="0">
+        <div class="about-entry-copy">
+          <h2 class="about-entry-title">Shanghai Qizhi Institute</h2>
+          <p class="about-entry-subtitle">Intern</p>
+        </div>
+        <div class="about-entry-logo">
+          <img src="{{ "/assets/img/about/sqz.png" | relative_url }}" alt="Shanghai Qizhi Institute logo" />
+        </div>
+      </article>
+    </section>
+
+    <section class="about-entry-group about-education" aria-label="Education">
+      <article class="about-entry" data-academy-trigger tabindex="0" aria-label="Tsinghua University">
+        <div class="about-entry-copy">
+          <h2 class="about-entry-title">Tsinghua University</h2>
+          <p class="about-entry-subtitle">Computer Science, Institute for Interdisciplinary Information Sciences (IIIS)</p>
+        </div>
+        <div class="about-entry-logo">
+          <img src="{{ "/assets/img/about/thu.png" | relative_url }}" alt="Tsinghua University logo" />
+        </div>
+      </article>
+
+      <article class="about-entry" data-academy-trigger="xmu" tabindex="0" aria-label="Xiamen University">
+        <div class="about-entry-copy">
+          <h2 class="about-entry-title">Xiamen University</h2>
+          <p class="about-entry-subtitle">Artificial Intelligence, School of Informatics</p>
+        </div>
+        <div class="about-entry-logo">
+          <img src="{{ "/assets/img/about/xmu.png" | relative_url }}" alt="Xiamen University logo" />
+        </div>
+      </article>
+    </section>
+
+    <p class="about-signature">渊澄<br />取映</p>
+  </div>
+</div>
+<script defer src="{{ '/assets/js/tsinghua-academy.js' | relative_url }}"></script>

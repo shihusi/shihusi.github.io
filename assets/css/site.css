@@ -1,0 +1,394 @@
+:root {
+  color-scheme: light;
+  --title-font: "Avenir Next", Avenir, "Helvetica Neue", Helvetica, Arial, "PingFang SC", sans-serif;
+  --reading-size: clamp(1.03rem, 1.45vw, 1.2rem);
+  --paper: #fdfdfc;
+  --ink: #232323;
+  --prose: #393939;
+  --link-ink: #615c56;
+  --rule: rgb(35 35 35 / 15%);
+  background: var(--paper);
+}
+
+:root[data-theme="night"] {
+  color-scheme: dark;
+  --paper: #030303;
+  --ink: #eae8e4;
+  --prose: #d0cecc;
+  --link-ink: #dedad4;
+  --accent: #dad9d6;
+  --muted: #b5b1ac;
+  --rule: #ffffff25;
+  --night-field: url("../img/warm-gray-field.webp");
+}
+
+.site-shell {
+  --footer-height: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+  --footer-offset: 1.25rem;
+  box-sizing: border-box;
+  padding-bottom: calc(var(--footer-height) + var(--footer-offset));
+  isolation: isolate;
+  background: var(--paper);
+  color: var(--ink);
+  width: min(760px, calc(100% - 11vw));
+  margin: 0 auto;
+  font: 400 16px/1.6 Charter, Georgia, serif;
+}
+
+.site-shell .site-header {
+  min-height: 0;
+  padding: 0;
+}
+
+.site-shell .site-header .wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: none;
+  padding: 1.15rem 0;
+}
+
+.site-shell .wrapper::after { display: none; }
+
+.site-shell .site-title {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.site-title:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+:root:not([data-theme="night"]) .site-title { mix-blend-mode: multiply; }
+
+.site-shell .site-title img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.site-shell .site-nav {
+  position: static;
+  border: 0;
+  line-height: 1;
+}
+
+.site-shell .site-nav .menu {
+  align-items: center;
+  display: flex;
+  gap: clamp(.8rem, 2.6vw, 2.4rem);
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.site-shell .site-nav .page-link,
+.site-contact a,
+.site-contact .rain-silence {
+  padding: .55rem 0;
+  margin: 0;
+  color: var(--link-ink);
+  font: 500 .85rem/1.35 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+}
+
+.site-shell a:hover,
+.site-shell a:focus-visible,
+.site-shell .site-nav a[aria-current] {
+  text-decoration: underline;
+  text-underline-offset: .35em;
+}
+
+.site-content {
+  margin: clamp(1.5rem, 3vw, 2.25rem) 0 clamp(3rem, 7vw, 6.5rem);
+}
+
+.post { max-width: 72ch; }
+
+:is(.work, .blog, .about, .post-content) {
+  font-size: max(1.0625rem, var(--reading-size));
+}
+
+/* The page itself is the sky. Only the reading column follows the site width. */
+.night-home {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+.site-sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--paper);
+}
+
+.site-sky::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../img/night-field.webp") center / cover no-repeat;
+  filter: grayscale(1) invert(1);
+  opacity: .48;
+}
+
+[data-theme="night"] .site-sky::before {
+  background-image: var(--night-field);
+  filter: none;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme="night"] .site-sky::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: url("../img/night-mist.webp") center / 100% 100% no-repeat;
+    animation: mist-drift 9s ease-in-out -4s infinite alternate;
+  }
+
+  [data-theme="night"] .glyph-rain { z-index: 1; }
+  [data-theme="night"] .site-shell:not([data-playing]) .site-sky::after {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes mist-drift {
+  from { transform: translate(-4%, 1.5%) scale(1.12); opacity: .075; }
+  to   { transform: translate(4%, -1.5%) scale(1.15); opacity: .14; }
+}
+
+.interactive-mist { display: none; }
+@media (any-hover: hover) and (any-pointer: fine) and (prefers-reduced-motion: no-preference) {
+  [data-theme="night"] .interactive-mist {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+[data-theme="night"] .site-content { color: var(--prose); }
+[data-theme="night"] .site-content :is(h1, h2, h3, h4) { color: var(--accent); }
+[data-theme="night"] .site-title img { filter: grayscale(1) invert(1); mix-blend-mode: screen; }
+.site-shell a { color: var(--link-ink); }
+[data-theme="night"] .site-content a { text-decoration: underline; text-underline-offset: .18em; }
+.site-content .selected-work.assembling a { text-decoration: none; }
+.site-content .about > p:first-of-type a { text-decoration: none; }
+
+
+[data-theme="night"] :is(.blog-post-date, .about-entry-subtitle, .about-signature, .post-subtitle, blockquote) {
+  color: var(--muted);
+}
+[data-theme="night"] :is(code, pre) { background: #242322; border-color: var(--rule); }
+[data-theme="night"] .about-education { border-color: var(--rule); }
+
+.blog-post-list a.blog-post-title,
+.post-header .post-title {
+  font-family: var(--title-font);
+  color: var(--link-ink);
+}
+[data-theme="night"] .blog-post-list a.blog-post-title,
+[data-theme="night"] .post-header .post-title { color: var(--link-ink); }
+
+.site-shell .site-content a:is(.work-project-title, .blog-post-title) {
+  text-decoration: none;
+}
+.site-shell .site-content a:is(.work-project-title, .blog-post-title):is(:hover, :focus-visible) {
+  color: var(--ink);
+}
+
+.night-home .site-content {
+  flex: 1;
+  display: grid;
+  align-items: center;
+  margin: clamp(1.5rem, 3vw, 2.25rem) 0;
+}
+
+.home-intro {
+  width: min(100%, 50ch);
+  margin: 0 auto;
+}
+
+.home-intro h1 {
+  text-align: center;
+  margin: 0;
+  font: 500 clamp(1.65rem, 2.5vw, 2.15rem)/1.25 var(--title-font);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.home-intro .home-email {
+  white-space: nowrap;
+  font-size: .78em;
+  font-family: var(--title-font);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.home-intro .home-name {
+  text-align: center;
+  margin: .45rem 0 1.6rem;
+  font: 400 1rem/1.5 STFangsong, FangSong, "仿宋", "FangSong_GB2312", fangsong, serif;
+}
+
+.home-intro p {
+  color: var(--prose);
+  margin: .8rem 0 0;
+  font-size: var(--reading-size);
+  line-height: 1.55;
+}
+
+.glyph-rain {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse 43% 39% at center, transparent 50%, black 100%);
+}
+
+[data-theme="night"] :is(.glyph-rain, .academy-cloud, .almanac-cloud) { filter: invert(87%) sepia(5%) saturate(270%) hue-rotate(351deg); }
+
+.site-shell:not(.night-home) .glyph-rain {
+  mask-image: none;
+  opacity: .62;
+}
+
+.site-shell:not(.night-home) .glyph-rain.gathering-academy {
+  mask-image: radial-gradient(ellipse var(--academy-ellipse), rgb(0 0 0 / var(--rain-core)) 35%, black 100%);
+}
+
+.site-contact {
+  position: fixed;
+  z-index: 2;
+  inset: auto 0 var(--footer-offset);
+  width: inherit;
+  height: var(--footer-height);
+  box-sizing: border-box;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0 0 env(safe-area-inset-bottom, 0px);
+}
+
+.footer-actions {
+  display: flex;
+  align-items: baseline;
+  gap: .8rem;
+  margin-left: auto;
+  min-width: 0;
+}
+
+.site-contact .page-next {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .45em;
+  min-width: 0;
+}
+.page-next span:first-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.site-contact > a { white-space: nowrap; }
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-page-turn="out"] .site-content {
+    animation: page-leave .2s ease-in both;
+  }
+  [data-page-turn="in"] .site-content {
+    animation: page-enter .42s cubic-bezier(.2,.7,.2,1) backwards;
+  }
+  [data-turn-back] { --leave-offset: 24px; --enter-offset: -32px; }
+  @keyframes page-leave {
+    to { opacity: 0; transform: translateY(var(--leave-offset, -24px)); }
+  }
+  @keyframes page-enter {
+    from { opacity: 0; transform: translateY(var(--enter-offset, 32px)); }
+  }
+}
+
+@media (max-width: 720px) {
+  .site-contact { gap: 1rem; }
+  .site-content { margin-bottom: 1.75rem; }
+  .glyph-rain {
+    mask-image: linear-gradient(to bottom, black, transparent 29%, transparent 69%, black);
+  }
+}
+
+@media (max-width: 420px) {
+  .site-shell .site-title img { width: 32px; height: 32px; }
+  .site-shell .site-nav .page-link { font-size: .8rem; }
+}
+
+.almanac-cloud { display: block; width: 100%; height: 100%; }
+
+/* Carry the existing sky texture across the foreground of the sun. */
+.solar-stage::after {
+  content: "";
+  position: absolute;
+  inset: -15% -12%;
+  pointer-events: none;
+  background: url("../img/night-mist.webp") center / cover no-repeat;
+  filter: invert(1);
+  mix-blend-mode: multiply;
+  opacity: .38;
+  mask-image: radial-gradient(ellipse at 62% 56%, black 8%, transparent 65%);
+}
+[data-theme="night"] .solar-stage::after {
+  filter: none;
+  mix-blend-mode: screen;
+  opacity: .52;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .solar-stage::after { animation: solar-mist 12s ease-in-out infinite alternate; }
+  .site-shell:not([data-playing]) .solar-stage::after { animation-play-state: paused; }
+}
+@keyframes solar-mist {
+  from { transform: translate(-6%, 2%) scale(1.06); }
+  to { transform: translate(5%, -3%) scale(1.16); }
+}
+
+.site-shell.over-sun { cursor: pointer; }
+html:has(.over-sun) { cursor: pointer; }
+
+.rain-silence {
+  flex: none;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.rain-label {
+  display: grid;
+  transform-style: preserve-3d;
+  transform: perspective(12em) rotateX(0deg);
+}
+.rain-label > span {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+}
+.rain-label > span + span { transform: rotateX(180deg); }
+.shows-flow .rain-label { transform: perspective(12em) rotateX(180deg); }
+@media (prefers-reduced-motion: no-preference) {
+  .rain-label { transition: transform .34s cubic-bezier(.4,0,.2,1); }
+}
+
+:root:not([data-theme="night"]) .night-home .glyph-rain {
+  mask-image: radial-gradient(ellipse 48% 45% at center, transparent 55%, black 100%);
+}
+@media (max-width: 720px) {
+  :root:not([data-theme="night"]) .night-home .glyph-rain {
+    mask-image: linear-gradient(to bottom, black, transparent 24%, transparent 74%, black);
+  }
+}

@@ -1,25 +1,13 @@
 ---
 layout: home
-profile_picture:
-  src: /assets/img/sun_rise.jpg
-  alt: website picture
-  # of <a href="http://dangrover.com">website</a>.
+title: Yutao Ouyang
+blurb: Yutao Ouyang studies embodied AI, reinforcement learning, and robotics at Tsinghua University.
+og_image: /assets/img/night-field.webp
 ---
 
-<p>
-  Welcome! This is 欧阳宇涛 Ouyang Yutao's homepage. I am a Ph.D. student at the Institute for Interdisciplinary Information Sciences (IIIS), Tsinghua University, and a research intern at ByteDance Seed. My main research interest is in embodied AI, RL, robotics and other related areas, and aslo enjoy communicating with people in different fields.
-</p>
+<h1>Yutao Ouyang</h1>
+<p class="home-name" lang="zh-Hans">欧阳宇涛</p>
 
-<p>
-    If you have any interesting topic, please feel free to contact me and discuss together, appeciate for your letter.
-</p>
+<p>I study embodied AI, reinforcement learning, and robotics. I’m a PhD student at Tsinghua University’s Institute for Interdisciplinary Information Sciences (IIIS) and a research intern at ByteDance Seed.</p>
 
-<p class="profile-links">
-  <a href="mailto:oyyttyyo@outlook.com">Email</a>
-  <span aria-hidden="true">&middot;</span>
-  <a href="https://scholar.google.com/citations?user=e8LSJ_4AAAAJ&amp;hl=zh-CN&amp;oi=ao" target="_blank" rel="noopener noreferrer">Google Scholar</a>
-</p>
-
-<!-- <p>
-  You can find the source code and the instructions on <a href="https://github.com/eliottvincent/bay">GitHub</a>.
-</p> -->
+<p>I’m always happy to chat with people from any field. Feel free to contact me at <a class="home-email" href="mailto:oyyttyyo@outlook.com">oyyttyyo@outlook.com</a>.</p>

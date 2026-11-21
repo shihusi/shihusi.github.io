@@ -3,10 +3,4 @@ layout: about
 # title: About
 # permalink: /about
 ---
-
-
-
-<br />
-<br />
-
-My name is Yutao Ouyang, a phd student from IIIS Tsinghua University.
+I’m Yutao Ouyang, a PhD student at <span data-academy-trigger tabindex="0">Tsinghua University’s Institute for Interdisciplinary Information Sciences (IIIS)</span>, advised by [Yi Wu](https://jxwuyi.weebly.com/) and [Mengdi Xu](https://www.mengdixu.me/).

@@ -1,22 +1,21 @@
 <header class="site-header">
   <div class="wrapper">
-    <a class="site-title" href="{{ "" | prepend: site.baseurl | prepend: site.url }}/">
-      <img src="{{ "/assets/img/sit.png" | absolute_url }}" alt="{{ site.title }}" />
-    </a>
+    <button class="site-title theme-toggle" type="button" aria-label="Night mode" aria-pressed="false">
+      <img src="{{ "/assets/img/sit.png" | relative_url }}" alt="" />
+    </button>
 
     <nav class="site-nav" aria-label="Primary navigation">
-      <button class="menu-icon" type="button" aria-label="Toggle navigation" aria-controls="site-menu" aria-expanded="false"></button>
+      {% assign current_path = page.url | remove: ".html" %}
 
       <div class="menu" id="site-menu">
-        {% for page in site.header.pages %}
-          {% if page.slug and page.slug != "" and page.slug != nil %}
-            {% assign page_link = page.slug %}
+        {% for item in site.header.pages %}
+          {% if item.slug and item.slug != "" and item.slug != nil %}
+            {% assign page_link = item.slug %}
           {% else %}
-            {% assign page_link = "/" | append: page.name | downcase %}
+            {% assign page_link = "/" | append: item.name | downcase %}
           {% endif %}
-          {% assign page_link = page_link | absolute_url %}
-          <a class="page-link" href="{{ page_link }}">
-            {{ page.name }}
+          <a class="page-link" href="{{ page_link | relative_url }}"{% if current_path == page_link %} aria-current="page"{% elsif page.layout == "post" and item.name == "Blog" %} aria-current="location"{% endif %}>
+            {{ item.name }}
           </a>
         {% endfor %}
       </div>

@@ -1,7 +1,9 @@
 .work-item {
   clear: both;
   overflow: hidden;
-  padding-bottom: 3em;
+  padding-bottom: 2rem;
+
+  &:has(+ .selected-work) { padding-bottom: 3rem; }
 }
 
 .work-bubble {
@@ -9,4 +11,49 @@
   padding-right: 20px;
   width: 100px;
   height: 100px;
+}
+
+.selected-work {
+  margin-top: 1.6rem;
+
+  h2 {
+    margin: 0;
+    font: 500 1em/1.4 var(--title-font);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  ul { list-style: none; margin: 0; padding: 0; }
+  li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: .8rem;
+    margin: 0;
+
+    & + li { margin-top: .9rem; }
+  }
+
+  .work-project-links {
+    white-space: nowrap;
+    text-align: right;
+    font-size: .85rem;
+    a { font-size: inherit; }
+  }
+  a { font: 500 1.15rem/1.35 var(--title-font); }
+}
+
+.work-rain-word,
+.work-rain-word > span {
+  display: inline-block;
+}
+
+.work > p:first-of-type,
+.work .selected-work h2 {
+  margin-bottom: 2em;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-work-entrance] .selected-work ul { opacity: 0; }
 }

@@ -57,7 +57,23 @@
     <meta name="twitter:site" content="{{ twitter_username }}"/>
   {% endif %}
 
+  <script src="{{ '/assets/js/theme.js' | relative_url }}"></script>
+  <script src="{{ '/assets/js/page-turn.js' | relative_url }}"></script>
+  {% if page.layout == "work" %}
+    <script>
+      if (window.IntersectionObserver && Element.prototype.animate &&
+          !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.dataset.workEntrance = "pending";
+        // If the deferred renderer fails to initialize, keep the project links usable.
+        document.addEventListener("DOMContentLoaded", function () {
+          if (document.documentElement.dataset.workEntrance === "pending")
+            delete document.documentElement.dataset.workEntrance;
+        });
+      }
+    </script>
+  {% endif %}
   <link rel="stylesheet" href="{{ "/assets/css/main.css" | absolute_url }}"/>
+  <link rel="stylesheet" href="{{ '/assets/css/site.css' | relative_url }}"/>
   <link rel="canonical" href="{{ page_url }}"/>
   <link rel="shortcut icon" href="{{ "/sit_48.ico" | absolute_url }}" type="image/x-icon"/>
 

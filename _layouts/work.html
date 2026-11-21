@@ -1,38 +1,39 @@
-<!DOCTYPE html>
-<html lang="{{ site.lang | default: 'en' }}">
-  {% include head.html %}
+---
+layout: default
+---
+<div class="work">
+  {% if page.title %}
+    <h1 class="page-heading">{{ page.title }}</h1>
+  {% endif %}
+  {{ content }}
 
-  <body>
-    {% include header.html %}
-
-    <div class="page-content">
-      <div class="wrapper">
-        <div class="work">
-          {% if page.title %}
-            <h1 class="page-heading">{{ page.title }}</h1>
-          {% endif %}
-          {{ content }}
-
-          {% for item in page.items %}
-          <div class="work-item">
-            <!-- <img
-              src="{{ item.image.src | absolute_url }}"
-              alt="{{ item.image.alt }}"
-              class="work-bubble"
-            /> -->
-            <span class="work-text">
-              <strong>{{ item.title }}</strong>
-              &mdash;
-              {{ item.description }}
-            </span>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-
-    {% include footer.html %}
-
-    {% include foot.html %}
-  </body>
-</html>
+  {% for item in page.items %}
+  <div class="work-item">
+    <!-- <img
+      src="{{ item.image.src | absolute_url }}"
+      alt="{{ item.image.alt }}"
+      class="work-bubble"
+    /> -->
+    <span class="work-text">
+      <strong>{{ item.title }}</strong>
+      &mdash;
+      {{ item.description }}
+    </span>
+  </div>
+  {% endfor %}
+  <section class="selected-work" aria-labelledby="selected-work-title">
+    <h2 id="selected-work-title">Selected Work</h2>
+    <ul>
+      {% for project in page.selected %}
+        <li>
+          <a class="work-project-title" href="{{ project.url | escape }}">{{ project.title | escape }}</a>
+          <span class="work-project-links">
+            <a href="{{ project.url | escape }}" aria-label="{{ project.title | escape }} website">Web</a>{% if project.paper %}
+            <span aria-hidden="true">·</span>
+            <a href="{{ project.paper | escape }}" aria-label="{{ project.title | escape }} paper">Paper</a>{% endif %}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>

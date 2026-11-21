@@ -1,0 +1,36 @@
+{% if page.layout == "post" %}
+  {% assign next_url = "/blog" %}
+  {% assign next_title = "Blog" %}
+  {% assign prev_url = "/blog" %}
+  {% assign found_current = false %}
+  {% for post in site.posts %}
+    {% if post.draft == true %}{% continue %}{% endif %}
+    {% if found_current %}
+      {% assign next_url = post.url | remove: ".html" %}
+      {% assign next_title = post.title %}
+      {% break %}
+    {% endif %}
+    {% if post.url == page.url %}{% assign found_current = true %}{% else %}{% assign prev_url = post.url | remove: ".html" %}{% endif %}
+  {% endfor %}
+{% else %}
+  {% for item in site.header.pages %}
+    {% assign section = item.name | downcase %}
+    {% if section == page.layout %}
+      {% assign next_index = forloop.index | modulo: site.header.pages.size %}
+      {% assign prev_index = forloop.index0 | plus: site.header.pages.size | minus: 1 | modulo: site.header.pages.size %}
+      {% assign prev_item = site.header.pages[prev_index] %}
+      {% assign prev_url = prev_item.slug %}
+      {% unless prev_url %}{% assign prev_url = prev_item.name | downcase | prepend: "/" %}{% endunless %}
+      {% assign next_item = site.header.pages[next_index] %}
+      {% assign next_title = next_item.name %}
+      {% assign next_url = next_item.slug %}
+      {% unless next_url %}{% assign next_url = next_title | downcase | prepend: "/" %}{% endunless %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{% if next_url %}
+  <a class="page-next" rel="next" data-prev="{{ prev_url | relative_url }}" href="{{ next_url | relative_url }}" aria-label="Next page: {{ next_title | escape }}">
+    <span>{{ next_title | escape }}</span><span aria-hidden="true">↓</span>
+  </a>
+{% endif %}

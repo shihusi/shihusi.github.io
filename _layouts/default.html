@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html lang="{{ site.lang | default: 'en' }}">
   {% include head.html %}
-
-  <body>
-    {% include header.html %}
-
-    <div class="page-content">
-      <div class="wrapper">
-        {{ content }}
-      </div>
+  <body class="site-shell{% if page.layout == 'home' %} night-home{% endif %}">
+    <div class="site-sky" aria-hidden="true">
+      <canvas class="interactive-mist" data-field="{{ '/assets/img/warm-gray-field.webp' | relative_url }}"></canvas>
+      <canvas class="glyph-rain"></canvas>
+      {% if page.layout == "about" %}
+        <div class="academy-stage"><canvas class="academy-cloud" data-points="{{ '/assets/img/about/tsinghua-academy.bin' | relative_url }}"></canvas></div>
+      {% elsif page.layout == "blog" %}
+        <div class="academy-stage solar-stage"><canvas class="almanac-cloud" data-center-x=".62" data-center-y=".51" data-radius=".166"></canvas></div>
+      {% endif %}
     </div>
-
+    {% include header.html %}
+    <main class="site-content">
+      {{ content }}
+    </main>
     {% include footer.html %}
-    
     {% include foot.html %}
   </body>
 </html>
