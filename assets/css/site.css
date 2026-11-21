@@ -448,3 +448,32 @@ html:has(.over-sun) { cursor: pointer; }
 .astra-galaxy { position: absolute; inset: 0; width: 100%; height: 100%; }
 .post-art-stage.astra-playing .post-point-cloud { opacity: .18; }
 [data-theme="night"] .astra-galaxy { filter: invert(87%) sepia(5%) saturate(270%) hue-rotate(351deg); }
+
+/* Reveal the original dots in place, including the moving stars on the galaxy canvas. */
+@property --art-front {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: -28%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-post-art] .post-art-stage {
+    --art-edge: #000 var(--art-front), transparent calc(var(--art-front) + 28%);
+    mask-image: linear-gradient(0deg, var(--art-edge));
+    transition: --art-front 1.05s cubic-bezier(.25,.62,.33,1);
+  }
+  [data-post-art="window"] .post-art-stage {
+    mask-image: linear-gradient(108deg, var(--art-edge));
+  }
+  [data-post-art="galaxy"] .post-art-stage {
+    mask-image: radial-gradient(ellipse farthest-corner at 48% 59%, var(--art-edge));
+  }
+  [data-post-art][data-art-ready] .post-art-stage { --art-front: 100%; }
+  @starting-style {
+    [data-post-art][data-art-ready] .post-art-stage { --art-front: -28%; }
+  }
+  [data-post-art][data-page-turn="out"] .post-art-stage {
+    --art-front: -28%;
+    transition-duration: .36s;
+    transition-timing-function: ease-in;
+  }
+}

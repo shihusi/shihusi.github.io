@@ -1,6 +1,8 @@
 (() => {
   const root = document.documentElement;
   const storageKey = "shihusi.pageTurn";
+  const postArt = document.currentScript.dataset.postArt;
+  if (postArt) root.dataset.postArt = postArt;
   let arriving = false;
   try {
     arriving = sessionStorage.getItem(storageKey) === location.pathname;
@@ -23,17 +25,23 @@
     let touchStart = null;
     let navigationTimer;
 
+    if (postArt) {
+      const poster = document.querySelector(".post-point-cloud");
+      const reveal = () => { root.dataset.artReady = ""; };
+      if (poster.complete) reveal();
+      else poster.addEventListener("load", reveal, {once: true});
+    }
+
     function atEdge(direction) {
       const page = document.scrollingElement;
       if (direction < 0) return page.scrollTop <= 2;
       return page.scrollHeight - page.clientHeight - page.scrollTop <= 2;
     }
 
-    function turn(direction = 1) {
+    function turn(direction = 1, href = direction < 0 ? new URL(next.dataset.prev, location.href).href : next.href) {
       if (leaving) return;
       leaving = true;
       root.toggleAttribute("data-turn-back", direction < 0);
-      const href = direction < 0 ? new URL(next.dataset.prev, location.href).href : next.href;
       document.dispatchEvent(new CustomEvent("page-turn-start", {detail: {href}}));
       root.dataset.pageTurn = "out";
       navigationTimer = setTimeout(() => {
@@ -44,9 +52,18 @@
           // The outgoing transition does not depend on storage.
         }
         location.assign(href);
-      }, reducedMotion.matches ? 0 : 200);
+      }, reducedMotion.matches ? 0 : postArt ? 360 : 200);
     }
 
+    if (postArt) {
+      document.querySelector(".site-nav").addEventListener("click", event => {
+        const link = event.target.closest("a[href]");
+        if (!link || event.defaultPrevented || event.button || event.ctrlKey || event.metaKey ||
+            event.shiftKey || event.altKey || link.target || link.origin !== location.origin) return;
+        event.preventDefault();
+        turn(1, link.href);
+      });
+    }
     next.addEventListener("click", event => {
       if (event.button || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
       event.preventDefault();

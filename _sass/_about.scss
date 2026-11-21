@@ -20,6 +20,8 @@
 }
 
 .about-entry-group > .about-entry {
+  width: fit-content;
+  max-width: 100%;
   margin-block: 0;
   position: relative;
 }
@@ -27,7 +29,7 @@
 .about-entry::before {
   content: "";
   position: absolute;
-  inset: -1px -0.5rem;
+  inset: -1px 0 -1px -0.5rem;
 }
 
 .about-entry-copy {

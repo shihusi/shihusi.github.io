@@ -1,6 +1,7 @@
 ---
 layout: post
 point_cloud_full_page: true
+point_cloud_reveal: window
 point_cloud_spacing: roomy
 point_cloud_image: /assets/img/blog/beijing-classroom.png
 title:  "Beijing"

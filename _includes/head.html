@@ -58,7 +58,7 @@
   {% endif %}
 
   <script src="{{ '/assets/js/theme.js' | relative_url }}"></script>
-  <script src="{{ '/assets/js/page-turn.js' | relative_url }}"></script>
+  <script src="{{ '/assets/js/page-turn.js' | relative_url }}"{% if page.point_cloud_reveal %} data-post-art="{{ page.point_cloud_reveal }}"{% endif %}></script>
   {% if page.layout == "work" %}
     <script>
       if (window.IntersectionObserver && Element.prototype.animate &&

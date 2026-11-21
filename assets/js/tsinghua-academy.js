@@ -135,27 +135,7 @@
   let width, height, rotationTime = 4000;
   // Projection bounds of the original model, in camera-distance units.
   const left = -.162507, span = .389509, midY = .004079;
-  const allowOverlap = matchMedia("(max-width: 720px), (hover: none) and (pointer: coarse) and (max-height: 500px)");
-  let clearings = [];
-  function measureText() {
-    if (allowOverlap.matches) {
-      clearings = [];
-      return;
-    }
-    const bounds = canvas.getBoundingClientRect();
-    const about = document.querySelector(".about");
-    const walker = document.createTreeWalker(about, NodeFilter.SHOW_TEXT);
-    const range = document.createRange();
-    const rects = [...about.querySelectorAll("img")].map(img => img.getBoundingClientRect());
-    while (walker.nextNode()) {
-      if (!walker.currentNode.textContent.trim()) continue;
-      range.selectNodeContents(walker.currentNode);
-      rects.push(...range.getClientRects());
-    }
-    clearings = rects.filter(r => r.bottom + 8 > bounds.top && r.top - 8 < bounds.bottom &&
-      r.left - 12 < bounds.right && r.right + 12 > bounds.left).map(r =>
-      [r.left - bounds.left - 12, r.top - bounds.top - 8, r.width + 24, r.height + 16]);
-  }
+  const compactViewport = matchMedia("(max-width: 720px), (hover: none) and (pointer: coarse) and (max-height: 500px)");
   // Store the front surface at several poses so rear cornices disappear behind the facade.
   let towerMasks, towerCount = 0;
   const towerFront = Math.PI + .34, towerPoseSteps = 32;
@@ -201,7 +181,7 @@
     const isLogo = selected && selected !== "xmu" && !towerVisible;
     const domeVisible = selected === "xmu";
     // Frame the atrium above the footer, including the nearest balcony rim.
-    const enlargeTower = towerVisible && !allowOverlap.matches;
+    const enlargeTower = towerVisible && !compactViewport.matches;
     const modelZoom = enlargeTower ? 1.55 : domeVisible ? 1.18 : 1;
     const centerX = enlargeTower ? .44 : .5;
     // Grow the desktop tower upward so its sweeping podium stays above the footer.
@@ -256,7 +236,6 @@
       ctx.fillRect(x * width, y * height, size, size);
     }
     ctx.globalAlpha = 1;
-    for (const rect of clearings) ctx.clearRect(...rect);
   }
   function step(now) {
     const dt = Math.min(48, now - last);
@@ -300,7 +279,6 @@
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    measureText();
     paint();
   }
   function activateArea(area) {
@@ -317,11 +295,10 @@
     area.addEventListener("focusin", e => { if (e.target.matches(":focus-visible")) activateArea(area); });
     area.addEventListener("click", () => activateArea(area));
   }
-  allowOverlap.addEventListener("change", () => { measureText(); paint(); });
+  compactViewport.addEventListener("change", paint);
   const geometry = new ResizeObserver(resize);
   geometry.observe(canvas);
   geometry.observe(document.querySelector(".about"));
-  window.addEventListener("scroll", () => { measureText(); paint(); }, { passive: true });
   new MutationObserver(update).observe(document.body, {attributes:true, attributeFilter:["data-playing"]});
   reduced.addEventListener("change", update);
   resize();
