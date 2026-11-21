@@ -392,3 +392,5 @@ html:has(.over-sun) { cursor: pointer; }
     mask-image: linear-gradient(to bottom, black, transparent 24%, transparent 74%, black);
   }
 }
+
+.academy-stage { width: min(75vw, clamp(260px, 43vw, 710px), 108vh); }

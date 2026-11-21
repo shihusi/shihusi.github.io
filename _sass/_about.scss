@@ -101,7 +101,7 @@
   position: absolute;
   right: clamp(10px, 2vw, 40px);
   bottom: calc(var(--footer-height) + var(--footer-offset) + 6px);
-  width: min(75vw, clamp(260px, 43vw, 710px), 108vh);
+
   aspect-ratio: 1.8;
   height: auto;
   z-index: 2;
