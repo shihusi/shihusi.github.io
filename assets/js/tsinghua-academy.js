@@ -136,8 +136,13 @@
   let width, height, rotationTime = 4000;
   // Projection bounds of the original model, in camera-distance units.
   const left = -.162507, span = .389509, midY = .004079;
+  const allowOverlap = matchMedia("(max-width: 720px), (hover: none) and (pointer: coarse) and (max-height: 500px)");
   let clearings = [];
   function measureText() {
+    if (allowOverlap.matches) {
+      clearings = [];
+      return;
+    }
     const bounds = canvas.getBoundingClientRect();
     const about = document.querySelector(".about");
     const walker = document.createTreeWalker(about, NodeFilter.SHOW_TEXT);
@@ -301,6 +306,7 @@
     if (!tapped) focused = null;
     update();
   });
+  allowOverlap.addEventListener("change", () => { measureText(); paint(); });
   const geometry = new ResizeObserver(resize);
   geometry.observe(canvas);
   geometry.observe(document.querySelector(".about"));

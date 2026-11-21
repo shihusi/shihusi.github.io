@@ -328,7 +328,7 @@
           const walker = document.createTreeWalker(region, NodeFilter.SHOW_TEXT);
           while (walker.nextNode()) {
             if (!walker.currentNode.textContent.trim() ||
-                walker.currentNode.parentElement.closest(".work-rain-word")) continue;
+                walker.currentNode.parentElement.closest(".assembling .work-rain-word")) continue;
             range.selectNodeContents(walker.currentNode);
             for (const rect of range.getClientRects()) remember(rect, region === footer);
           }
@@ -401,6 +401,7 @@
     new MutationObserver(queueMask).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
     document.fonts.ready.then(layoutChanged);
     document.querySelector(".site-content").addEventListener("animationend", layoutChanged);
+    work?.addEventListener("work-settled", layoutChanged);
     window.addEventListener("scroll", queueMask, { passive: true });
     window.addEventListener("pageshow", layoutChanged);
     layoutChanged();
@@ -441,11 +442,10 @@
       const diagonal = Math.hypot(innerWidth, innerHeight);
       const destinations = [], completions = [], original = sources.slice();
       const rows = Array.from(work.querySelectorAll("li"));
-      const labels = new Map();
+      const settledLetters = [];
       work.querySelectorAll(".work-project-title, .work-project-links > *").forEach(link => {
         const row = rows.indexOf(link.closest("li"));
         const title = link.textContent;
-        labels.set(link, title);
         if (link.matches("a:not([aria-label])")) link.setAttribute("aria-label", title);
         const letters = [];
         const words = title.split(/(\s+)/).map(word => {
@@ -470,21 +470,27 @@
           const match = sources.findIndex(s => s.glyph === character.toUpperCase());
           const source = sources.splice(Math.max(0,match),1)[0] || original[i % original.length];
           const dx = source.x-target.left, dy = source.y-target.top;
-          const travel = 780 + 400*Math.min(1,Math.hypot(dx,dy)/diagonal);
-          const delay = Math.max(0,1090 + row*155 + 300*i/letters.length - travel);
+          const travel = 620 + 320*Math.min(1,Math.hypot(dx,dy)/diagonal);
+          const delay = Math.max(0,870 + row*120 + 235*i/letters.length - travel);
           destinations.push({x:target.left+target.width/2, y:target.top+target.height/2, delay, travel});
           letter.style.width = target.width+"px";
           letter.textContent = source.glyph;
           const frames = Array.from({length:25}, (_,step) => {
             const t = step/24, u = 1-t;
-            const px = u**3*dx + 3*u*u*t*(dx-40) + 3*u*t*t*32;
-            const py = u**3*dy + 3*u*u*t*(dy+65) - 3*u*t*t*12;
+            const px = u**3*dx + 3*u*u*t*(dx-40);
+            const py = u**3*dy + 3*u*u*t*(dy+65);
             return {transform:"translate("+px+"px,"+py+"px) rotate("+(-56*u)+"deg) scale("+(.62+.38*t)+")",
               opacity:source.alpha*.62+(1-source.alpha*.62)*t};
           });
           const flight = letter.animate(frames,{duration:travel,delay,
             easing:"cubic-bezier(.32,.06,.2,1)",fill:"backwards"});
-          setTimeout(() => { letter.textContent = character; },delay + travel*.58);
+          const settle = () => { letter.textContent = character; };
+          const switchGlyph = setTimeout(settle, delay + travel*.54);
+          settledLetters.push(() => {
+            clearTimeout(switchGlyph);
+            settle();
+            letter.style.removeProperty("width");
+          });
           return flight.finished;
         });
         completions.push(...flights);
@@ -533,7 +539,10 @@
         work.classList.remove("assembling");
         cancelAnimationFrame(gatherFrame);
         drawGathering = null;
-        labels.forEach((title, link) => { link.textContent = title; });
+        // Keep the measured word and letter boxes in place at handoff. Replacing
+        // them with a new text run re-applies kerning and can rewrap a title.
+        settledLetters.forEach(settle => settle());
+        work.dispatchEvent(new Event("work-settled"));
         halfDensity = true;
         startRainAtEdges(true);
         draw();
