@@ -1,5 +1,8 @@
 ---
 layout: post
+point_cloud_full_page: true
+point_cloud_spacing: roomy
+point_cloud_image: /assets/img/blog/beijing-classroom.png
 title:  "Beijing"
 date:   2023-06-02 10:00:40
 blurb: "A look at an example post using Bay Jekyll theme."

@@ -4,6 +4,35 @@
   if (!context) return;
   const readingMask = document.createElement("canvas");
 
+  const artwork = document.querySelector(".post-point-cloud");
+  const artMask = artwork ? document.createElement("canvas") : null;
+
+  function updateArtMask() {
+    if (!artMask || !artwork.naturalWidth) return;
+    const sky = canvas.getBoundingClientRect(), box = artwork.getBoundingClientRect();
+    const fit = Math.min(box.width / artwork.naturalWidth, box.height / artwork.naturalHeight);
+    const w = artwork.naturalWidth * fit, h = artwork.naturalHeight * fit;
+    artMask.width = Math.ceil(sky.width / 4);
+    artMask.height = Math.ceil(sky.height / 4);
+    const brush = artMask.getContext("2d");
+    brush.scale(artMask.width / sky.width, artMask.height / sky.height);
+    const x = box.left - sky.left + (box.width - w) / 2;
+    const y = box.top - sky.top + (box.height - h) / 2;
+    brush.shadowColor = "black";
+    brush.shadowBlur = 8;
+    brush.fillRect(x, y, w, h);
+  }
+
+  function clearArtwork(brush) {
+    if (!artMask) return;
+    brush.save();
+    brush.setTransform(1,0,0,1,0,0);
+    brush.globalAlpha = 1;
+    brush.globalCompositeOperation = "destination-out";
+    brush.drawImage(artMask,0,0,brush.canvas.width,brush.canvas.height);
+    brush.restore();
+  }
+
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
   const keywords = [
     "AGENTS", "ROBOTICS", "EMBODIEDAI", "REINFORCEMENTLEARNING", "FOUNDATIONMODELS",
@@ -37,6 +66,9 @@
     ink.restore();
   }
 
+  const work = document.querySelector(".selected-work");
+  let halfDensity = !!work && document.documentElement.dataset.workEntrance !== "pending";
+  let restoreColumnsAt = null;
   let streams = [];
   let width, height;
   let elapsed = 0;
@@ -75,7 +107,8 @@
     if (silenced || drawGathering) return;
     context.clearRect(0, 0, width, height);
     const sunScale = sun ? Number(sun.dataset.sunScale || 1) : 1;
-    for (const stream of streams) {
+    for (let column = 0; column < streams.length; column += halfDensity ? 2 : 1) {
+      const stream = streams[column];
       const position = stream.start + elapsed * stream.speed;
       if (position < 0) continue;
       const cursor = Math.floor(position / stream.step);
@@ -85,7 +118,10 @@
         stream.letters = randomColumn(stream.rows);
         stream.pass = pass;
       }
-      const visibility = stream.revealAt === undefined ? 1 : Math.min(1, Math.max(0, (elapsed-stream.revealAt)/.65));
+      let visibility = stream.revealAt === undefined ? 1 : Math.min(1, Math.max(0, (elapsed-stream.revealAt)/.65));
+      if (restoreColumnsAt !== null && column % 2) {
+        visibility *= Math.min(1, (elapsed - restoreColumnsAt) / 1.8);
+      }
       for (let age = 0; age < stream.length; age++) {
         const row = head - age;
         const y = row * stream.step;
@@ -119,6 +155,7 @@
       }
     }
     context.globalAlpha = 1;
+    clearArtwork(context);
     if (previousRain) {
       const {layer, ink, mask, opacity, targetOpacity} = previousRain;
       const t = Math.min(1, (performance.now()-transitionStart)/1800);
@@ -166,7 +203,7 @@
         const saved = localRefill.get(stream);
         return saved && elapsed < saved.enterAt ? {...saved.shared, revealAt:elapsed} : stream;
       });
-      sessionStorage.setItem(rainKey, JSON.stringify({version:6, theme:document.documentElement.dataset.theme, stamp:Date.now(), width,height,elapsed,streams:outgoing,
+      sessionStorage.setItem(rainKey, JSON.stringify({version:6, theme:document.documentElement.dataset.theme, stamp:Date.now(), width,height,elapsed,halfDensity,streams:outgoing,
         mask:readingMask.toDataURL(), opacity:getComputedStyle(canvas).opacity,
         cssMask:getComputedStyle(canvas).maskImage}));
     } catch { /* Navigation can continue without a handoff. */ }
@@ -201,6 +238,7 @@
     if (arrival && arrival.streams?.length && Math.abs(arrival.width-width)<32 && Math.abs(arrival.height-height)<32) {
       streams = arrival.streams;
       elapsed = arrival.elapsed + (Date.now()-arrival.stamp)/1000;
+      restoreColumnsAt = arrival.halfDensity && !halfDensity && playing ? elapsed : null;
       if (playing && !silenced) {
         const layer = canvas.cloneNode(false);
         layer.style.maskImage = arrival.cssMask || "none";
@@ -277,6 +315,7 @@
       const x = window.scrollX, y = window.scrollY;
       if (measureAgain) {
         measureAgain = false;
+        updateArtMask();
         boxes = [];
         const range = document.createRange();
         function remember(rect, fixed) {
@@ -355,6 +394,10 @@
     const layoutObserver = new ResizeObserver(layoutChanged);
     for (const region of regions) layoutObserver.observe(region);
     layoutObserver.observe(canvas);
+    if (artwork) {
+      layoutObserver.observe(artwork);
+      artwork.addEventListener("load", layoutChanged);
+    }
     new MutationObserver(queueMask).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
     document.fonts.ready.then(layoutChanged);
     document.querySelector(".site-content").addEventListener("animationend", layoutChanged);
@@ -363,7 +406,6 @@
     layoutChanged();
   }
 
-  const work = document.querySelector(".selected-work");
   if (work && document.documentElement.dataset.workEntrance === "pending") {
     // Use the current rain trails as departure points, in viewport coordinates.
     function visibleLetters() {
@@ -387,9 +429,9 @@
       observer.disconnect();
       // Layout and animation setup run in this same task, before the next paint.
       delete document.documentElement.dataset.workEntrance;
-      if (!playing || silenced || reducedMotion.matches) return;
+      if (!playing || silenced || reducedMotion.matches) { halfDensity = true; draw(); return; }
       const sources = visibleLetters();
-      if (!sources.length) return;
+      if (!sources.length) { halfDensity = true; draw(); return; }
       work.classList.add("assembling");
       // Shuffling once distributes each row across the field without clustering at one origin.
       for (let i = sources.length - 1; i > 0; i--) {
@@ -492,6 +534,7 @@
         cancelAnimationFrame(gatherFrame);
         drawGathering = null;
         labels.forEach((title, link) => { link.textContent = title; });
+        halfDensity = true;
         startRainAtEdges(true);
         draw();
       });
@@ -506,7 +549,7 @@
     // Start its head upstream of both, including the rotated glyph footprint.
     const matrix = context.getTransform();
     const refillStart = elapsed;
-    const arrivals = streams.slice();
+    const arrivals = halfDensity ? streams.filter((_, i) => i % 2 === 0) : streams.slice();
     for (let i = arrivals.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [arrivals[i], arrivals[j]] = [arrivals[j], arrivals[i]];
@@ -578,6 +621,7 @@
         brush.drawImage(atlas,g.atlasX,0,cell,cell,-size/2,-size/2,size,size);
         brush.restore();
       }
+      clearArtwork(brush);
       if (moving && silenced) collecting=requestAnimationFrame(sweep);
       else { overlay.remove(); collecting=0; syncSilence(); }
     }

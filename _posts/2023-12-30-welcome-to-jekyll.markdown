@@ -1,5 +1,7 @@
 ---
 layout: post
+point_cloud_full_page: true
+point_cloud_image: /assets/img/blog/shanghai-night.png
 title:  "Hello! Shanghai"
 date:   2022-12-19 18:13:38 +0800
 categories: jekyll update

@@ -7,6 +7,13 @@
       <canvas class="glyph-rain"></canvas>
       {% if page.layout == "about" %}
         <div class="academy-stage"><canvas class="academy-cloud" data-points="{{ '/assets/img/about/qhxt.f32' | relative_url }}"></canvas></div>
+      {% elsif page.layout == "post" and page.point_cloud_image %}
+        <div class="academy-stage post-art-stage{% if page.point_cloud_full_page %} full-page-art{% endif %}"{% if page.point_cloud_spacing %} data-spacing="{{ page.point_cloud_spacing | escape }}"{% endif %}><img class="post-point-cloud" src="{{ page.point_cloud_image | relative_url }}" alt="">
+          {% if page.point_cloud_motion == "astra" %}
+            <canvas class="astra-galaxy" aria-hidden="true"></canvas>
+            <script defer src="{{ '/assets/js/astra-galaxy.js' | relative_url }}"></script>
+          {% endif %}
+        </div>
       {% elsif page.layout == "blog" or page.layout == "post" %}
         <div class="academy-stage solar-stage"><canvas class="almanac-cloud" data-center-x=".62" data-center-y=".51" data-radius=".166"></canvas></div>
         <script defer src="{{ '/assets/js/blog-almanac.js' | relative_url }}"></script>

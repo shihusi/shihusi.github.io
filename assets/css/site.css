@@ -6,6 +6,7 @@
   --ink: #232323;
   --prose: #393939;
   --link-ink: #615c56;
+  --post-date-ink: #77716b;
   --rule: rgb(35 35 35 / 15%);
   background: var(--paper);
 }
@@ -16,6 +17,7 @@
   --ink: #eae8e4;
   --prose: #d0cecc;
   --link-ink: #dedad4;
+  --post-date-ink: #a5a09a;
   --accent: #dad9d6;
   --muted: #b5b1ac;
   --rule: #ffffff25;
@@ -190,11 +192,14 @@
 [data-theme="night"] :is(code, pre) { background: #242322; border-color: var(--rule); }
 [data-theme="night"] .about-education { border-color: var(--rule); }
 
+.post-header .post-date { color: var(--post-date-ink); }
+
 .blog-post-list a.blog-post-title,
 .post-header .post-title {
   font-family: var(--title-font);
   color: var(--link-ink);
 }
+.post-header .post-title { font-weight: 500; }
 [data-theme="night"] .blog-post-list a.blog-post-title,
 [data-theme="night"] .post-header .post-title { color: var(--link-ink); }
 
@@ -255,7 +260,7 @@
   mask-image: radial-gradient(ellipse 43% 39% at center, transparent 50%, black 100%);
 }
 
-[data-theme="night"] :is(.glyph-rain, .academy-cloud, .almanac-cloud) { filter: invert(87%) sepia(5%) saturate(270%) hue-rotate(351deg); }
+[data-theme="night"] :is(.glyph-rain, .academy-cloud, .almanac-cloud, .post-point-cloud) { filter: invert(87%) sepia(5%) saturate(270%) hue-rotate(351deg); }
 
 .site-shell:not(.night-home) .glyph-rain {
   mask-image: none;
@@ -394,3 +399,32 @@ html:has(.over-sun) { cursor: pointer; }
 }
 
 .academy-stage { width: min(75vw, clamp(260px, 43vw, 710px), 108vh); }
+
+
+.academy-stage.post-art-stage {
+  width: min(36vw, 52vh, 540px);
+  aspect-ratio: auto;
+}
+.post-point-cloud { display: block; width: 100%; height: auto; }
+@media (max-width: 720px) {
+  .academy-stage.post-art-stage { width: min(68vw, 42vh); }
+}
+
+.academy-stage.full-page-art {
+  inset: clamp(9rem, 23vh, 13rem) 1vw calc(var(--footer-height) + var(--footer-offset));
+  width: auto;
+}
+.full-page-art .post-point-cloud {
+  height: 100%;
+  object-fit: contain;
+}
+
+@media (min-width: 721px) {
+  .full-page-art[data-spacing="roomy"] {
+    top: calc(clamp(9rem, 23vh, 13rem) + clamp(2.5rem, 6vh, 4rem));
+  }
+}
+
+.astra-galaxy { position: absolute; inset: 0; width: 100%; height: 100%; }
+.post-art-stage.astra-playing .post-point-cloud { opacity: .18; }
+[data-theme="night"] .astra-galaxy { filter: invert(87%) sepia(5%) saturate(270%) hue-rotate(351deg); }
