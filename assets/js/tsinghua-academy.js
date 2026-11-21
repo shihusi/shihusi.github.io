@@ -1,4 +1,4 @@
-// Lightly sampled projection of the IIIS Qinghua Xuetang point model:
+// Original IIIS Qinghua Xuetang vertices, stored as little-endian Float32 XYZ:
 // https://iiis.tsinghua.edu.cn/model/qhxt.json (reference view: /#page3).
 (async () => {
   const canvas = document.querySelector(".academy-cloud");
@@ -11,12 +11,16 @@
   const points = [];
   const stage = canvas.parentElement;
   const drawOrder = [];
-  let visibleCount = 0;
+  let visibleCount = 0, academyCount = 0;
+  const institutionCount = 7200;
+  let xmuCount = 0;
+  const domeVariant = new URLSearchParams(location.search).get("xmu") === "dewang";
   function updateDensity() {
     // CSS pixels measure the displayed footprint independently of Retina scaling.
     // Keep fine lettering recognizable at small sizes and use the full asset at 720px.
     const area = stage.clientWidth * stage.clientHeight;
-    visibleCount = Math.min(drawOrder.length, Math.max(1400, Math.round(area / 40)));
+    visibleCount = Math.min(drawOrder.length, institutionCount, Math.max(1400, Math.round(area / 40)));
+    academyCount = Math.min(points.length, Math.max(5000, Math.round(area / 10)));
   }
   const models = new Map();
   let selected = "", requested = "", leaveTimer;
@@ -78,7 +82,8 @@
     selected = key;
     const model = models.get(key);
     if (!model) return;
-    points.forEach((p,i) => {
+    points.forEach(p => {
+      const i = key === "xmu" ? p.xmuIndex : p.modelIndex;
       if (direct) {
         p.fromX = morph === 1 ? p.qx : p.fromX + (p.qx - p.fromX) * priorBlend;
         p.fromY = morph === 1 ? p.qy : p.fromY + (p.qy - p.fromY) * priorBlend;
@@ -129,7 +134,7 @@
     }
   }
   let width, height, rotationTime = 4000;
-  // Projection bounds of the sampled model, in camera-distance units.
+  // Projection bounds of the original model, in camera-distance units.
   const left = -.162507, span = .389509, midY = .004079;
   let clearings = [];
   function measureText() {
@@ -147,6 +152,35 @@
       r.left - 12 < bounds.right && r.right + 12 > bounds.left).map(r =>
       [r.left - bounds.left - 12, r.top - bounds.top - 8, r.width + 24, r.height + 16]);
   }
+  // Store the front surface at several poses so rear cornices disappear behind the facade.
+  let towerMasks;
+  const towerFront = Math.PI + .34, towerPoseSteps = 32;
+  // The deeper wing opens to the viewer's right as the azimuth decreases.
+  const towerYawAt = fraction => towerFront - 1.12 + 1.42 * fraction;
+  function towerVisibility(model) {
+    const grid = 96, count = model.length / 4;
+    return Array.from({length: towerPoseSteps + 1}, (_, pose) => {
+      const yaw = towerYawAt(pose / towerPoseSteps);
+      const c = Math.cos(yaw), s = Math.sin(yaw);
+      const front = new Float32Array(grid * grid).fill(-1);
+      const cells = new Uint16Array(count), depths = new Float32Array(count);
+      for (let i = 0; i < count; i++) {
+        const x = model[4*i]/65535-.5, y = model[4*i+1]/65535-.5, z = model[4*i+2]/65535-.5;
+        const d = z*c-x*s, scale = 1/(1-.36*d);
+        const col = Math.floor((.5+(x*c+z*s)*scale)*grid);
+        const row = Math.floor((.51+(y+.32*d)*scale)*grid);
+        const cell = row*grid+col;
+        cells[i] = cell;
+        depths[i] = d;
+        for (let dy = -1; dy <= 1; dy++)
+          for (let dx = -1; dx <= 1; dx++) {
+            const j = cell + dy*grid + dx;
+            front[j] = Math.max(front[j], d);
+          }
+      }
+      return depths.map((d,i) => Math.max(0, Math.min(1, 1-(front[cells[i]]-d-.022)/.036)));
+    });
+  }
   function paint() {
     if (progress !== maskedProgress && points.length) {
       maskedProgress = progress;
@@ -159,11 +193,16 @@
     const ease = phase < .5 ? 2 * phase ** 2 : 1 - 2 * (1 - phase) ** 2;
     const angle = .1 * (2 * ease - 1);
     const cos = Math.cos(angle), sin = Math.sin(angle);
-    const isLogo = selected && selected !== "xmu";
-    const yaw = isLogo ? .23 + .57 * Math.sin(rotationTime * Math.PI / 8000) : .29 + angle * 1.55;
+    const towerVisible = selected === "sqz";
+    const isLogo = selected && selected !== "xmu" && !towerVisible;
+    const domeVisible = domeVariant && selected === "xmu";
+    const yaw = towerVisible ? towerYawAt(ease) : domeVisible ? angle * .85 : isLogo ? .23 + .57 * Math.sin(rotationTime * Math.PI / 8000) : .29 + angle * 1.55;
     const shape = morph * morph * (3 - 2 * morph);
     const qc = Math.cos(yaw), qs = Math.sin(yaw);
-    for (let index = 0; index < visibleCount; index++) {
+    const pose = ease * towerPoseSteps;
+    const targetCount = selected === "xmu" ? Math.min(xmuCount, visibleCount * 2) : visibleCount;
+    const count = Math.round(academyCount + (targetCount - academyCount) * campus);
+    for (let index = 0; index < count; index++) {
       const p = points[drawOrder[index]];
       const t = Math.min(1, Math.max(0, (progress - p.delay) / .78));
       const blend = t * t * (3 - 2 * t);
@@ -182,7 +221,7 @@
       const distance = mz * qc - mx * qs;
       const scale = 1 / (1 - .36 * distance);
       const qx = .5 + (mx * qc + mz * qs) * scale;
-      const qy = .51 + (my + (isLogo ? .10 : .36) * distance) * scale;
+      const qy = .51 + (my + (towerVisible ? .32 : domeVisible ? .05 : isLogo ? .10 : .36) * distance) * scale;
       const destX = 1 + (tx + (qx - tx) * smooth - drift * p.travel - 1) / 1.45;
       const destY = 1 + (ty + (qy - ty) * smooth + drift * p.travel * 2.6 - 1) / 1.55;
       const x = p.sx + (destX - p.sx) * blend + arc * p.bend;
@@ -193,8 +232,14 @@
         ctx.drawImage(sample, p.tile.x, p.tile.y, 3, 3, x * width - side / 2, y * height - side / 2, side, side);
       }
       ctx.globalAlpha = (p.star ? .22 : 0) * (1 - blend) + ((.24 + .52 * p.depth) * (1 - smooth) + (.12 + .66 * p.ink) * smooth) * blend;
-      const size = (.65 + .65 * p.depth) * Math.min(1, Math.max(.62, width / 435));
+      const pointDepth = domeVisible ? p.depth + (mz + .5 - p.depth) * smooth : p.depth;
+      const size = (.70 + .30 * smooth) * (.65 + .65 * pointDepth) * Math.min(1, Math.max(.62, width / 435));
       ctx.globalAlpha *= hovered || focused || tapped ? 1 : .78;
+      if (towerVisible && towerMasks) {
+        const lo = Math.floor(pose), hi = Math.min(towerPoseSteps, lo + 1);
+        const a = towerMasks[lo][p.modelIndex], b = towerMasks[hi][p.modelIndex];
+        ctx.globalAlpha *= 1 - smooth * shape * (1 - a - (b - a) * (pose - lo));
+      }
       ctx.fillRect(x * width, y * height, size, size);
     }
     ctx.globalAlpha = 1;
@@ -266,23 +311,24 @@
   try {
     const response = await fetch(canvas.dataset.points);
     if (!response.ok) return;
-    const coords = new Uint16Array(await response.arrayBuffer());
-    const jiannanResponse = await fetch(new URL("jiannan.bin", response.url));
-    const jiannan = jiannanResponse.ok ? new Uint16Array(await jiannanResponse.arrayBuffer()) : null;
-    if (jiannan) models.set("xmu", jiannan);
+    const coords = new Float32Array(await response.arrayBuffer());
+    const xmuAsset = domeVariant ? "dewang-dome.bin" : "jiannan.bin";
+    const xmuResponse = await fetch(new URL(xmuAsset, response.url));
+    const xmuPoints = xmuResponse.ok ? new Uint16Array(await xmuResponse.arrayBuffer()) : null;
+    if (xmuPoints) {
+      models.set("xmu", xmuPoints);
+      xmuCount = xmuPoints.length / 4;
+    }
+    const scale = .8 / 140, c = Math.cos(-.4), s = Math.sin(-.4);
     for (let i = 0; i < coords.length; i += 3) {
-      const depth = coords[i + 2] / 65535;
-      const z = -.175257 + .316390 * depth;
-      const q = i / 3 * 4;
+      // IIIS centers the bounding box before scaling and rotating the building.
+      const x = coords[i], y = coords[i + 1] - 15.297566, z = coords[i + 2] + 6.167866;
+      const viewZ = (z * c - x * s) * scale;
       points.push({
-        qx: jiannan ? jiannan[q] / 65535 - .5 : 0,
-        qy: jiannan ? jiannan[q+1] / 65535 - .5 : 0,
-        qz: jiannan ? jiannan[q+2] / 65535 - .5 : 0,
-        ink: jiannan ? jiannan[q+3] / 65535 : .5,
+        qx: 0, qy: 0, qz: 0, ink: .5,
         travel: .03 + Math.random()*.16,
-        x: (left + span * coords[i] / 65535) * (1 - z),
-        y: (midY + span * (coords[i + 1] / 65535 - .5)) * (1 - z),
-        z, depth,
+        x: (x * c + z * s) * scale, y: -y * scale, z: viewZ,
+        depth: (viewZ + .175257) / .316390,
         sx: Math.random(), sy: Math.random(), delay: Math.random() * .21,
         bend: (Math.random() - .5) * .20, star: i % 99 === 0
       });
@@ -293,12 +339,31 @@
       drawOrder[i] = drawOrder[pick];
       drawOrder[pick] = i;
     }
+    // Spread the first visible particles across each institution's entire model.
+    const slots = Array.from({length: institutionCount}, (_, i) => i);
+    for (let i = slots.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [slots[i], slots[j]] = [slots[j], slots[i]];
+    }
+    drawOrder.forEach((id, rank) => {
+      points[id].modelIndex = slots[rank % slots.length];
+      points[id].xmuIndex = xmuCount ? rank % xmuCount : 0;
+    });
     updateDensity();
     update();
     await Promise.allSettled([...document.querySelectorAll(".about-entry[data-academy-trigger]")].map(async row => {
       const key = row.dataset.academyTrigger;
       if (!key || key === "xmu") return;
-      const data = await logoModel(row.querySelector("img"), points.length);
+      let data;
+      if (key === "sqz") {
+        const tower = await fetch(new URL("west-bund.bin", response.url));
+        if (tower.ok) {
+          data = new Uint16Array(await tower.arrayBuffer());
+          towerMasks = towerVisibility(data);
+        }
+      } else {
+        data = await logoModel(row.querySelector("img"), institutionCount);
+      }
       if (data) models.set(key, data);
       update();
     }));
