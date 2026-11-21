@@ -178,7 +178,6 @@
 
 [data-theme="night"] .site-content { color: var(--prose); }
 [data-theme="night"] .site-content :is(h1, h2, h3, h4) { color: var(--accent); }
-[data-theme="night"] .site-title svg { filter: grayscale(1) invert(1); }
 .site-shell a { color: var(--link-ink); }
 [data-theme="night"] .site-content a { text-decoration: underline; text-underline-offset: .18em; }
 .site-content .selected-work.assembling a { text-decoration: none; }

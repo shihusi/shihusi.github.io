@@ -67,6 +67,14 @@
   max-width: 88%;
 }
 
+.about-entry-logo .about-covariant-logo {
+  height: 60%;
+}
+
+[data-theme="night"] .about-covariant-logo {
+  filter: brightness(0) invert(1);
+}
+
 [data-theme="night"] .about-seed-logo,
 [data-theme="night"] .about-education .about-entry-logo img {
   filter: brightness(1.28) contrast(.55) brightness(1.75);
