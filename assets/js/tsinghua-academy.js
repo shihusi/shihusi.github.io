@@ -6,7 +6,7 @@
   if (!ctx) return;
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   let progress = 0, target = 0, frame = 0, last = 0;
-  let hovered = null, focused = null, tapped = null;
+  let activeArea = null;
   let campus = 0, campusTarget = 0;
   const points = [];
   const stage = canvas.parentElement;
@@ -22,7 +22,7 @@
     academyCount = Math.min(points.length, Math.max(5000, Math.round(area / 10)));
   }
   const models = new Map();
-  let selected = "", requested = "", leaveTimer;
+  let selected = "", requested = "";
   let morph = 1;
 
   // Sample the existing transparent artwork, through the full depth of each opaque stroke.
@@ -246,7 +246,7 @@
       ctx.globalAlpha = (p.star ? .22 : 0) * (1 - blend) + ((.24 + .52 * p.depth) * (1 - smooth) + (.12 + .66 * p.ink) * smooth) * blend;
       const pointDepth = domeVisible ? p.depth + (mz + .5 - p.depth) * smooth : p.depth;
       const size = (.70 + .30 * smooth) * (.65 + .65 * pointDepth) * Math.min(1, Math.max(.62, width / 435));
-      ctx.globalAlpha *= hovered || focused || tapped ? 1 : .78;
+      ctx.globalAlpha *= activeArea ? 1 : .78;
       if (towerVisible && towerMasks) {
         const lo = Math.floor(pose), hi = Math.min(towerPoseSteps, lo + 1);
         const i = p.rank % towerCount;
@@ -272,7 +272,7 @@
     frame = target || progress > 0 ? requestAnimationFrame(step) : 0;
   }
   function update() {
-    const key = (hovered || focused || tapped)?.dataset.academyTrigger;
+    const key = activeArea?.dataset.academyTrigger;
     requested = models.has(key) ? key : "";
     const active = points.length ? 1 : 0;
     if (active && !target && progress === 0 && points.length) sampleRain();
@@ -303,35 +303,20 @@
     measureText();
     paint();
   }
-  function hoverArea(area) {
-    clearTimeout(leaveTimer);
-    if (hovered === area) return;
-    hovered = area;
-    if (area) tapped = null;
+  function activateArea(area) {
+    if (activeArea === area) return;
+    activeArea = area;
     update();
-  }
-  function leaveArea() {
-    clearTimeout(leaveTimer);
-    leaveTimer = setTimeout(() => hoverArea(null), 180);
   }
   for (const area of document.querySelectorAll("[data-academy-trigger]")) {
-    area.addEventListener("pointerenter", e => { if (e.pointerType !== "touch") hoverArea(area); });
-    area.addEventListener("pointerleave", leaveArea);
+    area.addEventListener("pointerenter", e => { if (e.pointerType !== "touch") activateArea(area); });
     // Embedded previews can forward mouse motion without a pointer boundary event.
     area.addEventListener("mousemove", e => {
-      if (!e.sourceCapabilities?.firesTouchEvents) hoverArea(area);
+      if (!e.sourceCapabilities?.firesTouchEvents) activateArea(area);
     });
-    area.addEventListener("mouseleave", leaveArea);
-    area.addEventListener("focusin", () => { focused = area.matches(":focus-visible") ? area : null; update(); });
-    area.addEventListener("focusout", () => { focused = null; update(); });
+    area.addEventListener("focusin", e => { if (e.target.matches(":focus-visible")) activateArea(area); });
+    area.addEventListener("click", () => activateArea(area));
   }
-  document.addEventListener("click", e => {
-    const area = e.target.closest?.("[data-academy-trigger]");
-    if (area !== hovered) hoverArea(null);
-    tapped = hovered ? null : area;
-    if (!area) focused = null;
-    update();
-  });
   allowOverlap.addEventListener("change", () => { measureText(); paint(); });
   const geometry = new ResizeObserver(resize);
   geometry.observe(canvas);

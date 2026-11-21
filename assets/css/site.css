@@ -198,8 +198,12 @@
 .site-shell a { color: var(--link-ink); }
 [data-theme="night"] .site-content a { text-decoration: underline; text-underline-offset: .18em; }
 .site-content .selected-work.assembling a { text-decoration: none; }
-.site-content .about > p:first-of-type a { text-decoration: none; }
-.site-content .about a[data-academy-trigger] { color: inherit; text-decoration: none; }
+.site-content .about a { color: inherit; text-decoration: none; }
+.site-content .about .about-entry-title a { position: relative; font: inherit; }
+.site-content .about a:is(:hover, :focus-visible) {
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
 
 
 [data-theme="night"] :is(.blog-post-date, .about-entry-subtitle, .about-signature, .post-subtitle, blockquote) {
