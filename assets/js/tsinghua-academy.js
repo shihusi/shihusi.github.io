@@ -14,7 +14,6 @@
   let visibleCount = 0, academyCount = 0;
   const institutionCount = 7200;
   let xmuCount = 0;
-  const domeVariant = new URLSearchParams(location.search).get("xmu") === "dewang";
   function updateDensity() {
     // CSS pixels measure the displayed footprint independently of Retina scaling.
     // Keep fine lettering recognizable at small sizes and use the full asset at 720px.
@@ -83,7 +82,7 @@
     const model = models.get(key);
     if (!model) return;
     points.forEach(p => {
-      const i = key === "xmu" ? p.xmuIndex : p.modelIndex;
+      const i = key === "xmu" ? p.xmuIndex : key === "sqz" ? p.rank % towerCount : p.modelIndex;
       if (direct) {
         p.fromX = morph === 1 ? p.qx : p.fromX + (p.qx - p.fromX) * priorBlend;
         p.fromY = morph === 1 ? p.qy : p.fromY + (p.qy - p.fromY) * priorBlend;
@@ -158,7 +157,7 @@
       [r.left - bounds.left - 12, r.top - bounds.top - 8, r.width + 24, r.height + 16]);
   }
   // Store the front surface at several poses so rear cornices disappear behind the facade.
-  let towerMasks;
+  let towerMasks, towerCount = 0;
   const towerFront = Math.PI + .34, towerPoseSteps = 32;
   // The deeper wing opens to the viewer's right as the azimuth decreases.
   const towerYawAt = fraction => towerFront - 1.12 + 1.42 * fraction;
@@ -167,13 +166,13 @@
     return Array.from({length: towerPoseSteps + 1}, (_, pose) => {
       const yaw = towerYawAt(pose / towerPoseSteps);
       const c = Math.cos(yaw), s = Math.sin(yaw);
-      const front = new Float32Array(grid * grid).fill(-1);
+      const front = new Float32Array(grid * (grid + 24)).fill(-1);
       const cells = new Uint16Array(count), depths = new Float32Array(count);
       for (let i = 0; i < count; i++) {
         const x = model[4*i]/65535-.5, y = model[4*i+1]/65535-.5, z = model[4*i+2]/65535-.5;
         const d = z*c-x*s, scale = 1/(1-.36*d);
         const col = Math.floor((.5+(x*c+z*s)*scale)*grid);
-        const row = Math.floor((.51+(y+.32*d)*scale)*grid);
+        const row = Math.floor((.51+(y+.32*d)*scale+.1)*grid);
         const cell = row*grid+col;
         cells[i] = cell;
         depths[i] = d;
@@ -200,12 +199,20 @@
     const cos = Math.cos(angle), sin = Math.sin(angle);
     const towerVisible = selected === "sqz";
     const isLogo = selected && selected !== "xmu" && !towerVisible;
-    const domeVisible = domeVariant && selected === "xmu";
+    const domeVisible = selected === "xmu";
+    // Frame the atrium above the footer, including the nearest balcony rim.
+    const enlargeTower = towerVisible && !allowOverlap.matches;
+    const modelZoom = enlargeTower ? 1.55 : domeVisible ? 1.18 : 1;
+    const centerX = enlargeTower ? .44 : .5;
+    // Grow the desktop tower upward so its sweeping podium stays above the footer.
+    const centerY = domeVisible ? .24 : enlargeTower ? .21 : .51;
     const yaw = towerVisible ? towerYawAt(ease) : domeVisible ? angle * .85 : isLogo ? .23 + .57 * Math.sin(rotationTime * Math.PI / 8000) : .29 + angle * 1.55;
     const shape = morph * morph * (3 - 2 * morph);
     const qc = Math.cos(yaw), qs = Math.sin(yaw);
     const pose = ease * towerPoseSteps;
-    const targetCount = selected === "xmu" ? Math.min(xmuCount, visibleCount * 2) : visibleCount;
+    let targetCount = visibleCount;
+    if (selected === "xmu") targetCount = Math.min(xmuCount, visibleCount * 2);
+    if (enlargeTower) targetCount = Math.min(towerCount, Math.round(visibleCount * modelZoom ** 2));
     const count = Math.round(academyCount + (targetCount - academyCount) * campus);
     for (let index = 0; index < count; index++) {
       const p = points[drawOrder[index]];
@@ -224,9 +231,9 @@
       const my = morph === 1 ? p.qy : p.fromY + (p.qy - p.fromY) * shape;
       const mz = morph === 1 ? p.qz : p.fromZ + (p.qz - p.fromZ) * shape;
       const distance = mz * qc - mx * qs;
-      const scale = 1 / (1 - .36 * distance);
-      const qx = .5 + (mx * qc + mz * qs) * scale;
-      const qy = .51 + (my + (towerVisible ? .32 : domeVisible ? .05 : isLogo ? .10 : .36) * distance) * scale;
+      const scale = modelZoom / (1 - .36 * distance);
+      const qx = centerX + (mx * qc + mz * qs) * scale;
+      const qy = centerY + (my + (towerVisible ? .32 : domeVisible ? .05 : isLogo ? .10 : .36) * distance) * scale;
       const destX = 1 + (tx + (qx - tx) * smooth - drift * p.travel - 1) / 1.45;
       const destY = 1 + (ty + (qy - ty) * smooth + drift * p.travel * 2.6 - 1) / 1.55;
       const x = p.sx + (destX - p.sx) * blend + arc * p.bend;
@@ -242,7 +249,8 @@
       ctx.globalAlpha *= hovered || focused || tapped ? 1 : .78;
       if (towerVisible && towerMasks) {
         const lo = Math.floor(pose), hi = Math.min(towerPoseSteps, lo + 1);
-        const a = towerMasks[lo][p.modelIndex], b = towerMasks[hi][p.modelIndex];
+        const i = p.rank % towerCount;
+        const a = towerMasks[lo][i], b = towerMasks[hi][i];
         ctx.globalAlpha *= 1 - smooth * shape * (1 - a - (b - a) * (pose - lo));
       }
       ctx.fillRect(x * width, y * height, size, size);
@@ -295,15 +303,33 @@
     measureText();
     paint();
   }
+  function hoverArea(area) {
+    clearTimeout(leaveTimer);
+    if (hovered === area) return;
+    hovered = area;
+    if (area) tapped = null;
+    update();
+  }
+  function leaveArea() {
+    clearTimeout(leaveTimer);
+    leaveTimer = setTimeout(() => hoverArea(null), 180);
+  }
   for (const area of document.querySelectorAll("[data-academy-trigger]")) {
-    area.addEventListener("pointerenter", e => { if (e.pointerType !== "touch") { clearTimeout(leaveTimer); hovered = area; update(); } });
-    area.addEventListener("pointerleave", () => { leaveTimer = setTimeout(() => { hovered = null; update(); }, 180); });
+    area.addEventListener("pointerenter", e => { if (e.pointerType !== "touch") hoverArea(area); });
+    area.addEventListener("pointerleave", leaveArea);
+    // Embedded previews can forward mouse motion without a pointer boundary event.
+    area.addEventListener("mousemove", e => {
+      if (!e.sourceCapabilities?.firesTouchEvents) hoverArea(area);
+    });
+    area.addEventListener("mouseleave", leaveArea);
     area.addEventListener("focusin", () => { focused = area.matches(":focus-visible") ? area : null; update(); });
     area.addEventListener("focusout", () => { focused = null; update(); });
   }
-  document.addEventListener("pointerdown", e => {
-    tapped = e.pointerType === "touch" ? e.target.closest("[data-academy-trigger]") : null;
-    if (!tapped) focused = null;
+  document.addEventListener("click", e => {
+    const area = e.target.closest?.("[data-academy-trigger]");
+    if (area !== hovered) hoverArea(null);
+    tapped = hovered ? null : area;
+    if (!area) focused = null;
     update();
   });
   allowOverlap.addEventListener("change", () => { measureText(); paint(); });
@@ -318,8 +344,7 @@
     const response = await fetch(canvas.dataset.points);
     if (!response.ok) return;
     const coords = new Float32Array(await response.arrayBuffer());
-    const xmuAsset = domeVariant ? "dewang-dome.bin" : "jiannan.bin";
-    const xmuResponse = await fetch(new URL(xmuAsset, response.url));
+    const xmuResponse = await fetch(new URL("dewang-dome.bin", response.url));
     const xmuPoints = xmuResponse.ok ? new Uint16Array(await xmuResponse.arrayBuffer()) : null;
     if (xmuPoints) {
       models.set("xmu", xmuPoints);
@@ -352,6 +377,7 @@
       [slots[i], slots[j]] = [slots[j], slots[i]];
     }
     drawOrder.forEach((id, rank) => {
+      points[id].rank = rank;
       points[id].modelIndex = slots[rank % slots.length];
       points[id].xmuIndex = xmuCount ? rank % xmuCount : 0;
     });
@@ -365,6 +391,7 @@
         const tower = await fetch(new URL("west-bund.bin", response.url));
         if (tower.ok) {
           data = new Uint16Array(await tower.arrayBuffer());
+          towerCount = data.length / 4;
           towerMasks = towerVisibility(data);
         }
       } else {

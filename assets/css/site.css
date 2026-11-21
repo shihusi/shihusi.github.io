@@ -32,9 +32,26 @@
   isolation: isolate;
   background: var(--paper);
   color: var(--ink);
-  width: min(760px, calc(100% - 11vw));
+  --column-width: min(760px, calc(100% - 11vw));
+  width: var(--column-width);
   margin: 0 auto;
   font: 400 16px/1.6 Charter, Georgia, serif;
+}
+
+/* The flight area covers the screen or the full article on a shorter viewport. */
+.site-shell.work-page { width: auto; padding-bottom: 0; }
+.work-flight-area {
+  display: flow-root;
+  overflow: clip;
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-bottom: calc(var(--footer-height) + var(--footer-offset));
+}
+.work-page { --enter-offset: 0px; }
+.work-page :is(.site-header, .work, .site-contact) {
+  width: var(--column-width);
+  margin-inline: auto;
 }
 
 .site-shell .site-header {

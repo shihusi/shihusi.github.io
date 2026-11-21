@@ -17,6 +17,7 @@
     const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
     let leaving = false;
     let lastWheel = arriving ? performance.now() : -Infinity;
+    let waitingForWheelRelease = arriving;
     let wheelDistance = 0;
     let wheelDirection = 0;
     let touchStart = null;
@@ -52,22 +53,25 @@
       turn();
     });
 
-    // Only a new gesture that starts at the relevant edge can turn the page.
     window.addEventListener("wheel", event => {
       const now = performance.now();
-      const direction = Math.sign(event.deltaY);
-      if (now - lastWheel > 160) {
-        wheelDirection = atEdge(direction) ? direction : 0;
-        wheelDistance = 0;
-      }
+      const gap = now - lastWheel;
       lastWheel = now;
-      if (event.ctrlKey || event.defaultPrevented || direction !== wheelDirection ||
-          Math.abs(event.deltaX) > Math.abs(event.deltaY) || !atEdge(direction)) {
+      // Some browsers choose delta units based on whether deltaMode was read first.
+      const mode = event.deltaMode;
+      const dy = event.deltaY;
+      const direction = Math.sign(dy);
+      if (waitingForWheelRelease && gap > 160) waitingForWheelRelease = false;
+      if (waitingForWheelRelease || !direction || event.ctrlKey || event.defaultPrevented ||
+          Math.abs(event.deltaX) > Math.abs(dy) || !atEdge(direction)) {
+        wheelDistance = 0;
         wheelDirection = 0;
+        return;
       }
-      if (!wheelDirection) return;
-      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? innerHeight : 1;
-      wheelDistance += Math.abs(event.deltaY) * unit;
+      if (direction !== wheelDirection || gap > 600) wheelDistance = 0;
+      wheelDirection = direction;
+      // A single line/page tick is deliberate. Pixel deltas can arrive in smaller steps.
+      wheelDistance += Math.abs(dy) * (mode === 1 ? 24 : mode === 2 ? innerHeight : 1);
       if (wheelDistance >= 24) {
         if (event.cancelable) event.preventDefault();
         turn(direction);
@@ -101,6 +105,7 @@
       leaving = false;
       touchStart = null;
       wheelDirection = 0;
+      waitingForWheelRelease = true;
       lastWheel = performance.now();
     });
   });

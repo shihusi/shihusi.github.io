@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ site.lang | default: 'en' }}">
   {% include head.html %}
-  <body class="site-shell{% if page.layout == 'home' %} night-home{% endif %}">
+  <body class="site-shell{% if page.layout == 'home' %} night-home{% elsif page.layout == 'work' %} work-page{% endif %}">
     <div class="site-sky" aria-hidden="true">
       <canvas class="interactive-mist" data-field="{{ '/assets/img/warm-gray-field.webp' | relative_url }}"></canvas>
       <canvas class="glyph-rain"></canvas>
@@ -19,10 +19,12 @@
         <script defer src="{{ '/assets/js/blog-almanac.js' | relative_url }}"></script>
       {% endif %}
     </div>
+    {% if page.layout == "work" %}<div class="work-flight-area">{% endif %}
     {% include header.html %}
     <main class="site-content">
       {{ content }}
     </main>
+    {% if page.layout == "work" %}</div>{% endif %}
     {% include footer.html %}
     {% include foot.html %}
   </body>
