@@ -1,7 +1,19 @@
 <header class="site-header">
   <div class="wrapper">
     <button class="site-title theme-toggle" type="button" aria-label="Night mode" aria-pressed="false">
-      <img src="{{ "/assets/img/sit.png" | relative_url }}" alt="" />
+      <svg viewBox="0 0 960 960" aria-hidden="true" focusable="false">
+        <defs>
+          <filter id="avatar-paper" color-interpolation-filters="sRGB">
+            <!-- Fade only near-white paper into the page background. -->
+            <feColorMatrix type="matrix" values="1 0 0 0 0
+                                                 0 1 0 0 0
+                                                 0 0 1 0 0
+                                                 -6 -15 -2 0 23" />
+            <feComposite in2="SourceGraphic" operator="in" />
+          </filter>
+        </defs>
+        <image href="{{ '/assets/img/sit.png' | relative_url }}" width="960" height="960" filter="url(#avatar-paper)" />
+      </svg>
     </button>
 
     <nav class="site-nav" aria-label="Primary navigation">
