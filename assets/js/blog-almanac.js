@@ -51,7 +51,7 @@
     const ratio = Math.min(devicePixelRatio, 2);
     canvas.width = Math.round(width*ratio); canvas.height = Math.round(height*ratio);
     ctx.setTransform(ratio,0,0,ratio,0,0);
-    const walker = document.createTreeWalker(document.querySelector(".blog"), NodeFilter.SHOW_TEXT);
+    const walker = document.createTreeWalker(document.querySelector(".blog, .post"), NodeFilter.SHOW_TEXT);
     const range = document.createRange();
     clearings = [];
     while (walker.nextNode()) {
