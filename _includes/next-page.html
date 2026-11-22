@@ -13,18 +13,20 @@
     {% if post.url == page.url %}{% assign found_current = true %}{% else %}{% assign prev_url = post.url | remove: ".html" %}{% endif %}
   {% endfor %}
 {% else %}
-  {% for item in site.header.pages %}
-    {% assign section = item.name | downcase %}
+  {% assign turn_order = "Home,Work,About,Blog" | split: "," %}
+  {% for title in turn_order %}
+    {% assign section = title | downcase %}
     {% if section == page.layout %}
-      {% assign next_index = forloop.index | modulo: site.header.pages.size %}
-      {% assign prev_index = forloop.index0 | plus: site.header.pages.size | minus: 1 | modulo: site.header.pages.size %}
-      {% assign prev_item = site.header.pages[prev_index] %}
-      {% assign prev_url = prev_item.slug %}
-      {% unless prev_url %}{% assign prev_url = prev_item.name | downcase | prepend: "/" %}{% endunless %}
-      {% assign next_item = site.header.pages[next_index] %}
-      {% assign next_title = next_item.name %}
-      {% assign next_url = next_item.slug %}
-      {% unless next_url %}{% assign next_url = next_title | downcase | prepend: "/" %}{% endunless %}
+      {% assign next_index = forloop.index | modulo: turn_order.size %}
+      {% assign prev_index = forloop.index0 | plus: turn_order.size | minus: 1 | modulo: turn_order.size %}
+      {% assign next_title = turn_order[next_index] %}
+      {% assign prev_title = turn_order[prev_index] %}
+      {% assign next_item = site.header.pages | where: "name", next_title | first %}
+      {% assign prev_item = site.header.pages | where: "name", prev_title | first %}
+      {% assign next_url = next_title | downcase | prepend: "/" %}
+      {% assign prev_url = prev_title | downcase | prepend: "/" %}
+      {% assign next_url = next_item.slug | default: next_url %}
+      {% assign prev_url = prev_item.slug | default: prev_url %}
       {% break %}
     {% endif %}
   {% endfor %}

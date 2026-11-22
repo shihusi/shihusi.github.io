@@ -67,8 +67,7 @@
   }
 
   const work = document.querySelector(".selected-work");
-  let halfDensity = !!work && document.documentElement.dataset.workEntrance !== "pending";
-  let restoreColumnsAt = null;
+  let workSettled = !!work && document.documentElement.dataset.workEntrance !== "pending";
   let streams = [];
   let width, height;
   let elapsed = 0;
@@ -77,7 +76,6 @@
   const sun = document.querySelector(".almanac-cloud");
   let field = null;
   let previousRain = null;
-  let localRefill = new Map();
   let transitionStart = 0;
   let sizeKey = "";
 
@@ -85,7 +83,7 @@
   let silenced = false, collecting = 0;
   try { silenced = localStorage.getItem("shihusi.silence") === "on"; } catch {}
   function syncSilence() {
-    canvas.style.visibility = silenced ? "hidden" : "";
+    canvas.style.visibility = silenced || workSettled ? "hidden" : "";
     silence.classList.toggle("shows-flow", silenced && !collecting);
     silence.setAttribute("aria-label", silenced ? "Flow — resume letter rain" : "Silence letter rain");
   }
@@ -104,10 +102,10 @@
     context.drawImage(atlas,atlasX,0,cell,cell,x,y,size,size);
   }
   function draw() {
-    if (silenced || drawGathering) return;
+    if (silenced || workSettled || drawGathering) return;
     context.clearRect(0, 0, width, height);
     const sunScale = sun ? Number(sun.dataset.sunScale || 1) : 1;
-    for (let column = 0; column < streams.length; column += halfDensity ? 2 : 1) {
+    for (let column = 0; column < streams.length; column++) {
       const stream = streams[column];
       const position = stream.start + elapsed * stream.speed;
       if (position < 0) continue;
@@ -118,10 +116,6 @@
         stream.letters = randomColumn(stream.rows);
         stream.pass = pass;
       }
-      let visibility = stream.revealAt === undefined ? 1 : Math.min(1, Math.max(0, (elapsed-stream.revealAt)/.65));
-      if (restoreColumnsAt !== null && column % 2) {
-        visibility *= Math.min(1, (elapsed - restoreColumnsAt) / 1.8);
-      }
       for (let age = 0; age < stream.length; age++) {
         const row = head - age;
         const y = row * stream.step;
@@ -129,7 +123,7 @@
         // The head reveals a fixed sequence along the diagonal, one letter at a time.
         const index = stream.letters[row];
         const fade = Math.min(1, (stream.length - age) / (stream.length * .72));
-        context.globalAlpha = visibility * stream.strength * fade * (age === 0 ? 1 : .7);
+        context.globalAlpha = stream.strength * fade * (age === 0 ? 1 : .7);
         if (field) {
           const half = stream.glyphSize / 2;
           const dx = stream.x + half - field.x;
@@ -193,18 +187,12 @@
   try {
     const saved = JSON.parse(sessionStorage.getItem(rainKey));
     sessionStorage.removeItem(rainKey);
-    if (saved?.version === 6 && saved.theme === document.documentElement.dataset.theme && Date.now()-saved.stamp < 5000) arrival = saved;
+    if (saved?.version === 7 && saved.theme === document.documentElement.dataset.theme && Date.now()-saved.stamp < 5000) arrival = saved;
   } catch { /* Storage is optional. */ }
   window.addEventListener("pagehide", () => {
     try {
-      // Visible columns retain their exact phase. Only columns still waiting
-      // offscreen in Work resume their ordinary shared-scene phase.
-      const outgoing = streams.map(stream => {
-        const saved = localRefill.get(stream);
-        return saved && elapsed < saved.enterAt ? {...saved.shared, revealAt:elapsed} : stream;
-      });
-      sessionStorage.setItem(rainKey, JSON.stringify({version:6, theme:document.documentElement.dataset.theme, stamp:Date.now(), width,height,elapsed,halfDensity,streams:outgoing,
-        mask:readingMask.toDataURL(), opacity:getComputedStyle(canvas).opacity,
+      sessionStorage.setItem(rainKey, JSON.stringify({version:7, theme:document.documentElement.dataset.theme, stamp:Date.now(), width,height,elapsed,streams,
+        mask:readingMask.toDataURL(), opacity:workSettled ? 0 : getComputedStyle(canvas).opacity,
         cssMask:getComputedStyle(canvas).maskImage}));
     } catch { /* Navigation can continue without a handoff. */ }
   });
@@ -216,7 +204,6 @@
     const key = [viewWidth,viewHeight,scale,document.documentElement.dataset.theme].join("/");
     if (key === sizeKey) return;
     sizeKey = key;
-    localRefill.clear();
     canvas.width = Math.round(viewWidth * scale);
     canvas.height = Math.round(viewHeight * scale);
     context.setTransform(scale, 0, 0, scale, 0, 0);
@@ -238,8 +225,7 @@
     if (arrival && arrival.streams?.length && Math.abs(arrival.width-width)<32 && Math.abs(arrival.height-height)<32) {
       streams = arrival.streams;
       elapsed = arrival.elapsed + (Date.now()-arrival.stamp)/1000;
-      restoreColumnsAt = arrival.halfDensity && !halfDensity && playing ? elapsed : null;
-      if (playing && !silenced) {
+      if (playing && !silenced && !workSettled) {
         const layer = canvas.cloneNode(false);
         layer.style.maskImage = arrival.cssMask || "none";
         canvas.before(layer);
@@ -284,7 +270,7 @@
       canvas.style.removeProperty("opacity");
     }
     document.body.toggleAttribute("data-playing", playing);
-    if (!playing || silenced || document.hidden) return;
+    if (!playing || silenced || workSettled || document.hidden) return;
     let previous = performance.now();
     timer = setInterval(() => {
       const now = performance.now();
@@ -425,14 +411,22 @@
       }
       return letters;
     }
+    function settleWorkRain() {
+      workSettled = true;
+      previousRain?.layer.remove();
+      previousRain = null;
+      canvas.style.removeProperty("opacity");
+      syncSilence();
+      updatePlayback();
+    }
     const observer = new IntersectionObserver(entries => {
       if (!entries.some(entry => entry.isIntersecting)) return;
       observer.disconnect();
       // Layout and animation setup run in this same task, before the next paint.
       delete document.documentElement.dataset.workEntrance;
-      if (!playing || silenced || reducedMotion.matches) { halfDensity = true; draw(); return; }
+      if (!playing || silenced || reducedMotion.matches) { settleWorkRain(); return; }
       const sources = visibleLetters();
-      if (!sources.length) { halfDensity = true; draw(); return; }
+      if (!sources.length) { settleWorkRain(); return; }
       work.classList.add("assembling");
       // Shuffling once distributes each row across the field without clustering at one origin.
       for (let i = sources.length - 1; i > 0; i--) {
@@ -499,6 +493,7 @@
       // Paint them in a single pass instead of creating a DOM node for every drop.
       if (!destinations.length) {
         work.classList.remove("assembling");
+        settleWorkRain();
         return;
       }
       previousRain?.layer.remove();
@@ -543,22 +538,19 @@
         // them with a new text run re-applies kerning and can rewrap a title.
         settledLetters.forEach(settle => settle());
         work.dispatchEvent(new Event("work-settled"));
-        halfDensity = true;
-        startRainAtEdges(true);
-        draw();
+        settleWorkRain();
       });
     });
     observer.observe(work);
     document.documentElement.dataset.workEntrance = "ready";
   }
 
-  function startRainAtEdges(workOnly) {
-    localRefill.clear();
+  function startRainAtEdges() {
     // Each column crosses either the top or the right viewport boundary.
     // Start its head upstream of both, including the rotated glyph footprint.
     const matrix = context.getTransform();
     const refillStart = elapsed;
-    const arrivals = halfDensity ? streams.filter((_, i) => i % 2 === 0) : streams.slice();
+    const arrivals = streams.slice();
     for (let i = arrivals.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [arrivals[i], arrivals[j]] = [arrivals[j], arrivals[i]];
@@ -569,10 +561,6 @@
       const top = -origin.y / matrix.d;
       const right = (canvas.width - origin.x) / matrix.c;
       const lead = 2 * stream.glyphSize;
-      if (workOnly) localRefill.set(stream, {
-        shared: {...stream},
-        enterAt: refillStart + delay + (lead - stream.glyphSize) / stream.speed
-      });
       stream.start = Math.max(0, top, right) - lead - (refillStart + delay) * stream.speed;
       stream.letters = randomColumn(stream.rows);
       stream.pass = 0;
@@ -638,7 +626,7 @@
   }
   silence.hidden = false;
   silence.addEventListener("click", () => {
-    if (!silenced && !reducedMotion.matches && !collecting) collectRain();
+    if (!silenced && !workSettled && !reducedMotion.matches && !collecting) collectRain();
     silenced = !silenced;
     if (silenced) {
       previousRain?.layer.remove();
@@ -651,7 +639,7 @@
       if (silenced) localStorage.setItem("shihusi.silence","on");
       else localStorage.removeItem("shihusi.silence");
     } catch {}
-    if (!silenced && playing) startRainAtEdges(false);
+    if (!silenced && playing && !workSettled) startRainAtEdges();
     syncSilence();
     updatePlayback();
     if (!silenced) draw();
