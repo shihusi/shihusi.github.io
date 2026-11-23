@@ -7,20 +7,14 @@ layout: default
   {% endif %}
   {{ content }}
 
-  {% for item in page.items %}
-  <div class="work-item">
-    <!-- <img
-      src="{{ item.image.src | absolute_url }}"
-      alt="{{ item.image.alt }}"
-      class="work-bubble"
-    /> -->
-    <span class="work-text">
-      <strong>{{ item.title }}</strong>
-      &mdash;
-      {{ item.description }}
-    </span>
-  </div>
-  {% endfor %}
+  <section class="research-interests" aria-labelledby="research-interest-title">
+    <h2 id="research-interest-title">Research interest</h2>
+    {% for item in page.items %}
+      <div class="work-item">
+        <strong>{{ item.title }}</strong> &mdash; {{ item.description }}
+      </div>
+    {% endfor %}
+  </section>
   <section class="selected-work" aria-labelledby="selected-work-title">
     <h2 id="selected-work-title">Selected Work</h2>
     <ul>

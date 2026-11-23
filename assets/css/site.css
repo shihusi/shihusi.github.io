@@ -2,7 +2,7 @@
   color-scheme: light;
   --title-font: "Avenir Next", Avenir, "Helvetica Neue", Helvetica, Arial, "PingFang SC", sans-serif;
   --reading-size: clamp(1.03rem, 1.45vw, 1.2rem);
-  --paper: #fdfdfc;
+  --paper: #fff;
   --ink: #232323;
   --prose: #393939;
   --link-ink: #615c56;
@@ -146,19 +146,11 @@
   background: var(--paper);
 }
 
-.site-sky::before {
+[data-theme="night"] .site-sky::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("../img/night-field.webp") center / cover no-repeat;
-  filter: grayscale(1) invert(1);
-  opacity: .48;
-}
-
-[data-theme="night"] .site-sky::before {
-  background-image: var(--night-field);
-  filter: none;
-  opacity: 1;
+  background: var(--night-field) center / cover no-repeat;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -357,17 +349,16 @@
 
 .almanac-cloud { display: block; width: 100%; height: 100%; }
 
-/* Carry the existing sky texture across the foreground of the sun. */
 .solar-stage::after {
   content: "";
   position: absolute;
   inset: -15% -12%;
   pointer-events: none;
   background: url("../img/night-mist.webp") center / cover no-repeat;
+  mask-image: radial-gradient(ellipse at 62% 56%, black 8%, transparent 65%);
   filter: invert(1);
   mix-blend-mode: multiply;
   opacity: .38;
-  mask-image: radial-gradient(ellipse at 62% 56%, black 8%, transparent 65%);
 }
 [data-theme="night"] .solar-stage::after {
   filter: none;
