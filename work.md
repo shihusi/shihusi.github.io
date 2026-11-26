@@ -3,6 +3,8 @@ layout: work
 # title: Work
 slug: /work
 selected:
+  - title: Robots’ Last Exam
+    url: https://robots-last-exam.com/
   - title: uni-robot-agent (UAHarness)
     url: https://uni-robot-agent.com/
     paper: https://arxiv.org/abs/2611.01560
