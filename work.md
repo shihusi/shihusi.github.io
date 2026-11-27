@@ -6,7 +6,7 @@ selected:
   - title: Robots’ Last Exam
     url: https://robots-last-exam.com/
   - title: uni-robot-agent (UAHarness)
-    credit: Project core contributor
+    credit: "[Project] core contributor"
     full_authors: Jiarui Yuan, Yuxin Zuo, Xiaoyu Huang, Wenbo Zhang, Kwanyoung Park, Junlin Yang, Tianxiang Zhang, Ruoqu Chen, Yutao Ouyang, Bingxiang He, Xingtai Lv, Hongjin Wu, Jiajun Liu, Jiahao Zhao, Tianwei Luo, Haozhan Li, Cheng Qian, Jiaxin Ge, Huan-ang Gao, Kaisen Yang, Jiaqi Deng, Qixin Xu, Siqiao Huang, Bowen Zhou, Mengdi Xu, Zhiyuan Liu, Pieter Abbeel, Ning Ding
     url: https://uni-robot-agent.com/
     paper: https://arxiv.org/abs/2611.01560
