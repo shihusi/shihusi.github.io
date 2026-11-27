@@ -16,7 +16,10 @@ layout: default
     {% endfor %}
   </section>
   <section class="selected-work" aria-labelledby="selected-work-title">
-    <h2 id="selected-work-title">Selected Work</h2>
+    <div class="selected-work-heading">
+      <h2 id="selected-work-title">Selected Work</h2>
+      <p>With thanks to all my collaborators.</p>
+    </div>
     <ul>
       {% for project in page.selected %}
         <li>
@@ -26,8 +29,58 @@ layout: default
             <span aria-hidden="true">·</span>
             <a href="{{ project.paper | escape }}" aria-label="{{ project.title | escape }} paper">Paper</a>{% endif %}
           </span>
+          {% assign byline = project.authors | default: project.credit %}
+          {% if project.full_authors %}
+            <details class="work-byline">
+              {% capture short_credit %}{{ byline | escape | replace: "Yutao Ouyang", "<strong>Yutao Ouyang</strong>" }}{% endcapture %}
+              {% capture full_credit %}{{ project.full_authors | escape | replace: "Yutao Ouyang", "<strong>Yutao Ouyang</strong>" }}{% endcapture %}
+              {% if byline contains 'et al.' %}
+                <summary><span class="short-authors">{{ short_credit }}</span><span class="full-authors">{{ full_credit }}</span></summary>
+              {% else %}
+                <summary aria-label="Full author list for {{ project.title | escape }}">{{ short_credit }}</summary>
+                <p>{{ full_credit }}</p>
+              {% endif %}
+            </details>
+          {% elsif byline %}
+            <p class="work-byline">{{ byline | escape | replace: "Yutao Ouyang", "<strong>Yutao Ouyang</strong>" }}</p>
+          {% endif %}
         </li>
       {% endfor %}
     </ul>
   </section>
 </div>
+<script>
+  document.querySelectorAll('details.work-byline').forEach(details => {
+    const short = details.querySelector('.short-authors');
+    if (short) {
+      const full = details.querySelector('.full-authors');
+      const boldName = full.querySelector('strong')?.textContent;
+      const names = full.textContent.split(', ').map(name => {
+        const node = document.createElement(name === boldName ? 'strong' : 'span');
+        node.textContent = name;
+        return node;
+      });
+      function fitAuthors() {
+        if (details.open || !details.clientWidth) return;
+        const available = details.getBoundingClientRect().width;
+        for (let count = names.length; count >= 0; count--) {
+          const prefix = names.slice(0, count).flatMap((node, i) => i ? [', ', node] : [node]);
+          if (count < names.length) prefix.push(count ? ', et al.' : 'et al.');
+          short.replaceChildren(...prefix);
+          if (short.getBoundingClientRect().width <= available) break;
+        }
+      }
+      fitAuthors();
+      new ResizeObserver(fitAuthors).observe(details);
+      document.fonts.ready.then(fitAuthors);
+      details.addEventListener('toggle', fitAuthors);
+    }
+    const row = details.closest('li');
+    row.addEventListener('pointerenter', event => {
+      if (event.pointerType === 'mouse') details.open = true;
+    });
+    row.addEventListener('pointerleave', event => {
+      if (event.pointerType === 'mouse') details.open = false;
+    });
+  });
+</script>
